@@ -7,6 +7,7 @@ Facility.CreateGlobals = function()
     global.facility.shop = global.facility.shop or nil
     global.facility.paymentChest = global.facility.paymentChest or nil
     global.facility.deliveryChest = global.facility.deliveryChest or nil
+    global.facility.shopVisuals = global.facility.shopVisuals or {}
     global.facility.surface = global.facility.surface or nil
 end
 
@@ -48,10 +49,18 @@ Facility.CreateShopEntity = function()
         Logging.Log("ERROR: Shop at spawn failed to create at valid position")
         return false
     end
-    local shopBuildingRadarEntity = global.facility.surface.create_entity {name = "prime_intergalactic_delivery-shop_building_radar", position = shopBuildingEntity.position, force = "player", raise_built = true}
-    shopBuildingEntity.destructible = false
-    shopBuildingRadarEntity.destructible = false
     global.facility.shop = shopBuildingEntity
+    shopBuildingEntity.destructible = false
+
+    global.facility.shopVisuals.shopBuildingRadarEntity = global.facility.surface.create_entity {name = "prime_intergalactic_delivery-shop_building_radar", position = shopBuildingEntity.position, force = "player", raise_built = true}
+    global.facility.shopVisuals.shopBuildingRadarEntity.destructible = false
+
+    global.facility.shopVisuals.shopBuildingSpeaker1Entity = global.facility.surface.create_entity {name = "prime_intergalactic_delivery-shop_building_speaker", position = Utils.ApplyOffsetToPosition(shopBuildingEntity.position, {x = 1.2, y = 1.5}), force = "player", raise_built = true}
+    global.facility.shopVisuals.shopBuildingSpeaker1Entity.destructible = false
+
+    global.facility.shopVisuals.shopBuildingSpeaker2Entity = global.facility.surface.create_entity {name = "prime_intergalactic_delivery-shop_building_speaker", position = Utils.ApplyOffsetToPosition(shopBuildingEntity.position, {x = -1.2, y = 1.5}), force = "player", raise_built = true}
+    global.facility.shopVisuals.shopBuildingSpeaker2Entity.destructible = false
+
     return true
 end
 

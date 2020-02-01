@@ -1,5 +1,6 @@
 local Utils = require("utility/utils")
 local Constants = require("constants")
+local sounds = require("__base__/prototypes/entity/demo-sounds")
 
 local shopPaymentChest = Utils.DeepCopy(data.raw["logistic-container"]["logistic-chest-requester"])
 shopPaymentChest.name = "prime_intergalactic_delivery-shop_payment_chest"
@@ -24,6 +25,7 @@ data:extend(
             collision_box = {{-1.4, -1.4}, {1.4, 2.4}},
             selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
             map_color = data.raw["utility-constants"].default.chart.default_friendly_color,
+            vehicle_impact_sound = sounds.generic_impact,
             picture = {
                 layers = {
                     {
@@ -73,7 +75,27 @@ data:extend(
                         scale = 0.75
                     }
                 }
+            },
+            water_reflection = {
+                pictures = {
+                    filename = "__base__/graphics/entity/radar/radar-reflection.png",
+                    priority = "extra-high",
+                    width = 28,
+                    height = 32,
+                    shift = util.by_pixel(3, 90),
+                    variation_count = 1,
+                    scale = 4
+                },
+                rotate = false,
+                orientation_to_variation = false
             }
+        },
+        {
+            type = "simple-entity",
+            name = "prime_intergalactic_delivery-shop_building_speaker",
+            flags = {"placeable-off-grid"},
+            picture = data.raw["programmable-speaker"]["programmable-speaker"].sprite,
+            water_reflection = data.raw["programmable-speaker"]["programmable-speaker"].water_reflection
         },
         shopPaymentChest,
         shopDeliveryChest
