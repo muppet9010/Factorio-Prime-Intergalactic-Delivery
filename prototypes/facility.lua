@@ -56,7 +56,7 @@ data:extend(
                         height = 128,
                         line_length = 8,
                         frame_count = 64,
-                        animation_speed = 0.5,
+                        animation_speed = 0.2,
                         shift = util.by_pixel(-2, -48),
                         scale = 0.75
                     },
@@ -68,7 +68,7 @@ data:extend(
                         height = 94,
                         line_length = 8,
                         frame_count = 64,
-                        animation_speed = 0.5,
+                        animation_speed = 0.2,
                         shift = util.by_pixel(64, 25),
                         scale = 0.75
                     }
