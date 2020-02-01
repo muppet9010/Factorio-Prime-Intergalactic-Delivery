@@ -25,10 +25,22 @@ data:extend(
             selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
             map_color = data.raw["utility-constants"].default.chart.default_friendly_color,
             picture = {
-                filename = "__base__/graphics/entity/market/market.png",
-                width = 156,
-                height = 127,
-                shift = {0.95, 0.2}
+                layers = {
+                    {
+                        filename = Constants.AssetModName .. "/graphics/entity/shop_building.png",
+                        width = 156,
+                        height = 127,
+                        shift = {0.95, 0.2}
+                    },
+                    {
+                        filename = Constants.AssetModName .. "/graphics/entity/shop_building_shadow.png",
+                        flags = {"shadow"},
+                        draw_as_shadow = true,
+                        width = 156,
+                        height = 127,
+                        shift = {0.95, 0.2}
+                    }
+                }
             }
         },
         {
@@ -40,25 +52,24 @@ data:extend(
                 layers = {
                     {
                         filename = Constants.AssetModName .. "/graphics/entity/shop_building_radar.png",
-                        priority = "low",
                         width = 98,
                         height = 128,
                         line_length = 8,
                         frame_count = 64,
                         animation_speed = 0.5,
-                        shift = util.by_pixel(1, -16),
+                        shift = util.by_pixel(-2, -48),
                         scale = 0.75
                     },
                     {
                         filename = Constants.AssetModName .. "/graphics/entity/shop_building_radar_shadow.png",
-                        priority = "low",
+                        flags = {"shadow"},
+                        draw_as_shadow = true,
                         width = 172,
                         height = 94,
                         line_length = 8,
                         frame_count = 64,
                         animation_speed = 0.5,
-                        shift = util.by_pixel(39, 3),
-                        draw_as_shadow = true,
+                        shift = util.by_pixel(64, 25),
                         scale = 0.75
                     }
                 }

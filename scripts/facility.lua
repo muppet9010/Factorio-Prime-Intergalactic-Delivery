@@ -48,7 +48,7 @@ Facility.CreateShopEntity = function()
         Logging.Log("ERROR: Shop at spawn failed to create at valid position")
         return false
     end
-    local shopBuildingRadarEntity = global.facility.surface.create_entity {name = "prime_intergalactic_delivery-shop_building_radar", position = {pos.x - 0.1, pos.y - 1}, force = "player", raise_built = true}
+    local shopBuildingRadarEntity = global.facility.surface.create_entity {name = "prime_intergalactic_delivery-shop_building_radar", position = shopBuildingEntity.position, force = "player", raise_built = true}
     shopBuildingEntity.destructible = false
     shopBuildingRadarEntity.destructible = false
     global.facility.shop = shopBuildingEntity
