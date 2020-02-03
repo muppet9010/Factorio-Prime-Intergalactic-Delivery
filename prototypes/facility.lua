@@ -19,7 +19,7 @@ shopDeliveryChest.order = "9999"
 data:extend(
     {
         {
-            type = "simple-entity",
+            type = "market",
             name = "prime_intergalactic_delivery-shop_building",
             flags = {"placeable-off-grid"},
             collision_box = {{-1.4, -1.4}, {1.4, 2.4}},

@@ -1,6 +1,7 @@
 local Facility = {}
 local Utils = require("utility/utils")
 local Logging = require("utility/logging")
+local Interfaces = require("utility/interfaces")
 
 Facility.CreateGlobals = function()
     global.facility = global.facility or {}
@@ -51,6 +52,7 @@ Facility.CreateShopEntity = function()
     end
     global.facility.shop = shopBuildingEntity
     shopBuildingEntity.destructible = false
+    Interfaces.Call("Gui.RegisterMarketForOpened", global.facility.shop)
 
     global.facility.shopVisuals.shopBuildingRadarEntity = global.facility.surface.create_entity {name = "prime_intergalactic_delivery-shop_building_radar", position = shopBuildingEntity.position, force = "player", raise_built = true}
     global.facility.shopVisuals.shopBuildingRadarEntity.destructible = false
