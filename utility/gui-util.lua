@@ -2,7 +2,11 @@ local GuiUtil = {}
 local Constants = require("constants")
 
 GuiUtil.GenerateName = function(name, type)
-    return Constants.ModName .. "-" .. name .. "-" .. type
+    if name == nil then
+        return nil
+    else
+        return Constants.ModName .. "-" .. name .. "-" .. type
+    end
 end
 
 GuiUtil._ReplaceSelfWithGeneratedName = function(arguments, argName)

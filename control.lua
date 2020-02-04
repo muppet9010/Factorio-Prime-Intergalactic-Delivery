@@ -3,7 +3,7 @@ local Events = require("utility/events")
 local GuiActionsClick = require("utility/gui-actions-click")
 local GuiActionsOpened = require("utility/gui-actions-opened")
 local EventScheduler = require("utility/event-scheduler")
-local Gui = require("scripts/gui")
+local ShopGui = require("scripts/shop-gui")
 
 local function CreateGlobals()
     global.itemDeliveryPodModActive = global.itemDeliveryPodModActive or false
@@ -13,7 +13,7 @@ end
 local function OnLoad()
     --Any Remote Interface registration calls can go in here or in root of control.lua
     Facility.OnLoad()
-    Gui.OnLoad()
+    ShopGui.OnLoad()
 end
 
 local function OnSettingChanged(event)

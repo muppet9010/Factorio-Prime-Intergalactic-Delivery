@@ -225,10 +225,11 @@ defaultStyle.muppet_small_button = {
 }
 defaultStyle.muppet_large_button = {
     type = "button_style",
+    parent = "muppet_small_button",
     font = "default-large-bold"
 }
 
-defaultStyle.muppet_text = {
+defaultStyle.muppet_small_text = {
     type = "label_style",
     font = "default",
     padding = 0,
@@ -237,50 +238,50 @@ defaultStyle.muppet_text = {
     margin = 0,
     single_line = false
 }
-defaultStyle.muppet_semibold_text = {
+defaultStyle.muppet_small_semibold_text = {
     type = "label_style",
-    parent = "muppet_text",
+    parent = "muppet_small_text",
     font = "default-semibold"
 }
-defaultStyle.muppet_bold_text = {
+defaultStyle.muppet_small_bold_text = {
     type = "label_style",
-    parent = "muppet_text",
+    parent = "muppet_small_text",
     font = "default-bold"
 }
 
 defaultStyle.muppet_medium_text = {
     type = "label_style",
-    parent = "muppet_text",
+    parent = "muppet_small_text",
     font = "default-medium"
 }
 defaultStyle.muppet_medium_semibold_text = {
     type = "label_style",
-    parent = "muppet_text",
+    parent = "muppet_small_text",
     font = "default-medium-semibold"
 }
 defaultStyle.muppet_medium_bold_text = {
     type = "label_style",
-    parent = "muppet_text",
+    parent = "muppet_small_text",
     font = "default-medium-bold"
 }
 
 defaultStyle.muppet_large_text = {
     type = "label_style",
-    parent = "muppet_text",
+    parent = "muppet_small_text",
     font = "default-large"
 }
 defaultStyle.muppet_large_semibold_text = {
     type = "label_style",
-    parent = "muppet_text",
+    parent = "muppet_small_text",
     font = "default-large-semibold"
 }
 defaultStyle.muppet_large_bold_text = {
     type = "label_style",
-    parent = "muppet_text",
+    parent = "muppet_small_text",
     font = "default-large-bold"
 }
 
-local textsToMakeHeadings = {"muppet_medium_text", "muppet_medium_semibold_text", "muppet_bold_text", "muppet_medium_text", "muppet_medium_semibold_text", "muppet_medium_bold_text", "muppet_large_text", "muppet_large_semibold_text", "muppet_large_bold_text"}
+local textsToMakeHeadings = {"muppet_small_text", "muppet_small_semibold_text", "muppet_small_bold_text", "muppet_medium_text", "muppet_medium_semibold_text", "muppet_medium_bold_text", "muppet_large_text", "muppet_large_semibold_text", "muppet_large_bold_text"}
 for _, textName in pairs(textsToMakeHeadings) do
     local headingName = string.gsub(textName, "_text", "_heading")
     defaultStyle[headingName] = {
