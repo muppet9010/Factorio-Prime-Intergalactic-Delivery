@@ -1,4 +1,4 @@
-local Colors = require("utility/colors")
+--local Colors = require("utility/colors")
 local defaultStyle = data.raw["gui-style"]["default"]
 
 defaultStyle.prime_intergalactic_delivery_sprite_64 = {

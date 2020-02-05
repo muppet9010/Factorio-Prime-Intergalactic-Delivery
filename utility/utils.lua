@@ -2,7 +2,7 @@ local Utils = {}
 --local Logging = require("utility/logging")
 local factorioUtil = require("__core__/lualib/util")
 Utils.DeepCopy = factorioUtil.table.deepcopy
-Utils.TableMerge = factorioUtil.merge
+Utils.TableMerge = factorioUtil.merge -- takes an array of tables and returns a new table with copies of their contents
 
 function Utils.KillAllKillableObjectsInArea(surface, positionedBoundingBox, killerEntity, collisionBoxOnlyEntities)
     local entitiesFound = surface.find_entities(positionedBoundingBox)

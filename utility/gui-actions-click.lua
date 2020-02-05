@@ -1,6 +1,6 @@
 --local Logging = require("utility/logging")
 local GuiActionsClick = {}
-local GuiUtil = require("utility/gui-util")
+local Constants = require("constants")
 MOD = MOD or {}
 MOD.guiClickActions = MOD.guiClickActions or {}
 
@@ -18,12 +18,13 @@ GuiActionsClick.LinkGuiClickActionNameToFunction = function(actionName, actionFu
     MOD.guiClickActions[actionName] = actionFunction
 end
 
+--Generally called from the GuiUtil library now, but can be called manually.
 --Called after creating a button or other GuiElement is created to register a specific GUI click action name to it.
 GuiActionsClick.RegisterGuiForClick = function(elementName, elementType, actionName, data)
     if elementName == nil or elementType == nil or actionName == nil then
         error("GuiActions.RegisterGuiForClick called with missing arguments")
     end
-    local name = GuiUtil.GenerateName(elementName, elementType)
+    local name = GuiActionsClick.GenerateGuiElementName(elementName, elementType)
     global.UTILITYGUIACTIONSGUICLICK = global.UTILITYGUIACTIONSGUICLICK or {}
     global.UTILITYGUIACTIONSGUICLICK[name] = {actionName = actionName, data = data}
 end
@@ -36,7 +37,7 @@ GuiActionsClick.RemoveGuiForClick = function(elementName, elementType)
     if global.UTILITYGUIACTIONSGUICLICK == nil then
         return
     end
-    local name = GuiUtil.GenerateName(elementName, elementType)
+    local name = GuiActionsClick.GenerateGuiElementName(elementName, elementType)
     global.UTILITYGUIACTIONSGUICLICK[name] = nil
 end
 
@@ -57,6 +58,15 @@ GuiActionsClick._HandleGuiClickAction = function(rawFactorioEventData)
         actionFunction(actionData)
     else
         return
+    end
+end
+
+--Just happens to be the same as in GuiUtil, but not a requirement.
+GuiActionsClick.GenerateGuiElementName = function(name, type)
+    if name == nil then
+        return nil
+    else
+        return Constants.ModName .. "-" .. name .. "-" .. type
     end
 end
 
