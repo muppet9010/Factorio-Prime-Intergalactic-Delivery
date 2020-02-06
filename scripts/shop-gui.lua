@@ -42,34 +42,33 @@ ShopGui.CreateGui = function(player)
             name = "shopMain",
             type = "frame",
             direction = "vertical",
-            style = "muppet_padded_frame_main",
+            style = "muppet_frame_main_shadowRisen_paddingBR",
             storeName = "ShopGui",
-            styling = {right_padding = 4, bottom_padding = 4},
             children = {
                 {
                     type = "flow",
                     direction = "horizontal",
-                    style = "muppet_horizontal_flow",
+                    style = "muppet_flow_horizontal_marginTL_paddingBR",
                     styling = {horizontal_align = "left"},
                     children = {
                         {
                             name = "shopMainHeaderBar",
                             type = "label",
-                            style = "muppet_large_bold_heading",
+                            style = "muppet_label_heading_large_bold",
                             caption = "self"
                         },
                         {
                             type = "flow",
                             direction = "horizontal",
-                            style = "muppet_horizontal_flow",
-                            styling = {horizontal_align = "right", horizontally_stretchable = true, padding = 4},
+                            style = "muppet_flow_horizontal",
+                            styling = {horizontal_align = "right", horizontally_stretchable = true},
                             children = {
                                 {
                                     name = "shopMainHeaderBarClose",
                                     type = "sprite-button",
-                                    sprite = "utility/close_white",
+                                    sprite = "prime_intergalactic_delivery-close_white",
                                     tooltip = "self",
-                                    style = "close_button",
+                                    style = "muppet_button_sprite_frame_clickable",
                                     registerClick = {actionName = "ShopGui.CloseGuiClickAction"}
                                 }
                             }
@@ -80,14 +79,14 @@ ShopGui.CreateGui = function(player)
                     name = "shopMainContent",
                     type = "flow",
                     direction = "horizontal",
-                    style = "muppet_horizontal_flow",
+                    style = "muppet_flow_horizontal",
                     returnElement = true,
                     children = {
                         {
                             name = "shopMainLeftColumn",
                             type = "flow",
                             direction = "vertical",
-                            style = "muppet_vertical_flow",
+                            style = "muppet_flow_vertical",
                             returnElement = true
                         }
                     }
@@ -107,18 +106,19 @@ ShopGui.CreateItemList = function(shopMainLeftColumnFlow)
     GuiUtil.AddElement(
         {
             parent = shopMainLeftColumnFlow,
-            type = "frame",
+            type = "flow",
             direction = "vertical",
-            style = "muppet_padded_frame_content",
-            styling = {width = 500, height = 300},
+            style = "muppet_flow_vertical_marginTL",
+            styling = {width = 500, height = 300, padding = 2}, --make the scroll pane fit with other frames via theis flow
             children = {
                 {
                     name = "shopMainHeaderBar",
                     type = "scroll-pane",
                     direction = "vertical",
                     horizontal_scroll_policy = "never",
-                    vertical_scroll_policy = "auto",
+                    vertical_scroll_policy = "always",
                     storeName = "ShopGui",
+                    style = "muppet_scroll",
                     styling = {horizontally_stretchable = true, vertically_stretchable = true}
                 }
             }
@@ -132,19 +132,19 @@ ShopGui.CreateItemDetails = function(shopMainLeftColumnFlow)
             parent = shopMainLeftColumnFlow,
             type = "frame",
             direction = "vertical",
-            style = "muppet_padded_frame_content",
+            style = "muppet_frame_content_shadowRisen_marginTL_paddingBR",
             styling = {width = 500},
             children = {
                 {
                     type = "flow",
                     direction = "vertical",
-                    style = "muppet_vertical_flow_spaced",
+                    style = "muppet_flow_vertical_marginTL_spaced",
                     styling = {horizontal_align = "center"},
                     children = {
                         {
                             name = "itemDetailsTitle",
                             type = "label",
-                            style = "muppet_medium_semibold_heading",
+                            style = "muppet_label_heading_medium_semibold",
                             storeName = "ShopGui",
                             styling = {horizontally_stretchable = true}
                         }
@@ -153,24 +153,24 @@ ShopGui.CreateItemDetails = function(shopMainLeftColumnFlow)
                 {
                     type = "flow",
                     direction = "horizontal",
-                    style = "muppet_horizontal_flow_spaced",
+                    style = "muppet_flow_horizontal_marginTL_spaced",
                     children = {
                         {
                             type = "flow",
                             direction = "vertical",
-                            style = "muppet_vertical_flow_spaced",
+                            style = "muppet_flow_vertical_spaced",
                             styling = {horizontal_align = "center", top_margin = 4, bottom_margin = 4},
                             children = {
                                 {
                                     name = "itemDetailsImage",
                                     type = "sprite",
-                                    style = "prime_intergalactic_delivery_sprite_64",
+                                    style = "muppet_sprite_icon",
                                     storeName = "ShopGui"
                                 },
                                 {
                                     name = "itemDetailsPrice",
                                     type = "label",
-                                    style = "muppet_small_semibold_text",
+                                    style = "muppet_label_text_small_semibold",
                                     storeName = "ShopGui"
                                 },
                                 {
@@ -186,13 +186,13 @@ ShopGui.CreateItemDetails = function(shopMainLeftColumnFlow)
                         {
                             type = "flow",
                             direction = "vertical",
-                            style = "muppet_vertical_flow",
+                            style = "muppet_flow_vertical",
                             styling = {horizontally_stretchable = true},
                             children = {
                                 {
                                     name = "shopItemsDetailsDescription",
                                     type = "label",
-                                    style = "muppet_small_text",
+                                    style = "muppet_label_text_small",
                                     storeName = "ShopGui"
                                 }
                             }
@@ -210,7 +210,7 @@ ShopGui.CreateShoppingBasket = function(shopMainContentFlow)
             parent = shopMainContentFlow,
             type = "frame",
             direction = "vertical",
-            style = "muppet_padded_frame_content",
+            style = "muppet_frame_content_shadowRisen_marginTL_paddingBR",
             styling = {width = 400, vertically_stretchable = true}
         }
     )
