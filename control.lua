@@ -4,28 +4,25 @@ local GuiActionsClick = require("utility/gui-actions-click")
 local GuiActionsOpened = require("utility/gui-actions-opened")
 local EventScheduler = require("utility/event-scheduler")
 local ShopGui = require("scripts/shop-gui")
+local Shop = require("scripts/shop")
 
 local function CreateGlobals()
     global.itemDeliveryPodModActive = global.itemDeliveryPodModActive or false
     Facility.CreateGlobals()
+    Shop.CreateGlobals()
 end
 
 local function OnLoad()
     --Any Remote Interface registration calls can go in here or in root of control.lua
     Facility.OnLoad()
+    Shop.OnLoad()
     ShopGui.OnLoad()
-end
-
-local function OnSettingChanged(event)
-    --if event == nil or event.setting == "xxxxx" then
-    --	local x = tonumber(settings.global["xxxxx"].value)
-    --end
 end
 
 local function OnStartup()
     CreateGlobals()
     OnLoad()
-    OnSettingChanged(nil)
+    Events.RaiseEvent({name = defines.events.on_runtime_mod_setting_changed})
 
     if game.active_mods["item_delivery_pod"] ~= nil then
         global.itemDeliveryPodModActive = true
@@ -33,11 +30,12 @@ local function OnStartup()
         global.itemDeliveryPodModActive = false
     end
     Facility.OnStartup()
+    Shop.OnStartup()
 end
 
 script.on_init(OnStartup)
 script.on_configuration_changed(OnStartup)
-script.on_event(defines.events.on_runtime_mod_setting_changed, OnSettingChanged)
+Events.RegisterEvent(defines.events.on_runtime_mod_setting_changed)
 script.on_load(OnLoad)
 
 GuiActionsClick.MonitorGuiClickActions()

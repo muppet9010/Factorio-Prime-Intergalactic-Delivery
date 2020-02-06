@@ -24,6 +24,8 @@ ShopGui.MarketOpened = function(actionData)
 
     --TODO : test data
     ShopGui.PopulateTestData(player.index)
+
+    ShopGui.PopulateItemsList(player.index)
 end
 
 ShopGui.CloseGuiClickAction = function(actionData)
@@ -52,7 +54,7 @@ ShopGui.CreateGui = function(player)
                     styling = {horizontal_align = "left"},
                     children = {
                         {
-                            name = "shopMainHeaderBar",
+                            name = "shopGuiTitle",
                             type = "label",
                             style = "muppet_label_heading_large_bold",
                             caption = "self"
@@ -64,7 +66,7 @@ ShopGui.CreateGui = function(player)
                             styling = {horizontal_align = "right", horizontally_stretchable = true},
                             children = {
                                 {
-                                    name = "shopMainHeaderBarClose",
+                                    name = "shopGuiCloseButton",
                                     type = "sprite-button",
                                     sprite = "prime_intergalactic_delivery-close_white",
                                     tooltip = "self",
@@ -87,7 +89,26 @@ ShopGui.CreateGui = function(player)
                             type = "flow",
                             direction = "vertical",
                             style = "muppet_flow_vertical",
-                            returnElement = true
+                            returnElement = true,
+                            children = {
+                                {
+                                    type = "flow",
+                                    direction = "vertical",
+                                    style = "muppet_flow_vertical_marginTL",
+                                    styling = {width = 500, height = 300, padding = 2}, --make the scroll pane fit with other frames via theis flow
+                                    children = {
+                                        {
+                                            type = "scroll-pane",
+                                            direction = "vertical",
+                                            horizontal_scroll_policy = "never",
+                                            vertical_scroll_policy = "always",
+                                            storeName = "ShopGui",
+                                            style = "muppet_scroll",
+                                            styling = {horizontally_stretchable = true, vertically_stretchable = true}
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -100,30 +121,6 @@ ShopGui.CreateGui = function(player)
     ShopGui.CreateItemList(shopMainLeftColumnFlow)
     ShopGui.CreateItemDetails(shopMainLeftColumnFlow)
     ShopGui.CreateShoppingBasket(shopMainContentFlow)
-end
-
-ShopGui.CreateItemList = function(shopMainLeftColumnFlow)
-    GuiUtil.AddElement(
-        {
-            parent = shopMainLeftColumnFlow,
-            type = "flow",
-            direction = "vertical",
-            style = "muppet_flow_vertical_marginTL",
-            styling = {width = 500, height = 300, padding = 2}, --make the scroll pane fit with other frames via theis flow
-            children = {
-                {
-                    name = "shopMainHeaderBar",
-                    type = "scroll-pane",
-                    direction = "vertical",
-                    horizontal_scroll_policy = "never",
-                    vertical_scroll_policy = "always",
-                    storeName = "ShopGui",
-                    style = "muppet_scroll",
-                    styling = {horizontally_stretchable = true, vertically_stretchable = true}
-                }
-            }
-        }
-    )
 end
 
 ShopGui.CreateItemDetails = function(shopMainLeftColumnFlow)
@@ -218,9 +215,14 @@ end
 
 ShopGui.PopulateTestData = function(playerIndex)
     GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "itemDetailsTitle", "label", {caption = "Test Item Title"})
-    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "itemDetailsImage", "sprite", {sprite = "entity/roboport"})
+    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "itemDetailsImage", "sprite", {sprite = "item/modular-armor"})
     GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopItemsDetailsDescription", "label", {caption = "A  description of this thing with quite a few words as a bit of flavour text is always nice."})
     GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "itemDetailsPrice", "label", {caption = "5,000 " .. "[img=item/coin]"})
+end
+
+ShopGui.PopulateItemsList = function(playerIndex)
+    UP TO HERE
+    global.shop.items
 end
 
 ShopGui.AddToShoppingBasketAction = function(actionData)

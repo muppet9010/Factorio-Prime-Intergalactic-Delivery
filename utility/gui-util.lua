@@ -148,7 +148,7 @@ end
 
 GuiUtil._ReplaceSelfWithGeneratedName = function(arguments, argName)
     local arg = arguments[argName]
-    if arg == nil then
+    if arg == nil or arguments.name == nil then
         arg = nil
     elseif arg == "self" then
         arg = {"gui-" .. argName .. "." .. arguments.name}
