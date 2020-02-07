@@ -22,9 +22,16 @@ GuiUtil.AddElement = function(elementDetails)
     local element = elementDetails.parent.add(elementDetails)
     if elementDetails.returnElement then
         if elementDetails.name == nil then
-            Logging.LogPrint("ERROR: returnElement attribute requires element name to be supplied.")
+            Logging.LogPrint("ERROR: GuiUtil.AddElement returnElement attribute requires element name to be supplied.")
         else
             returnElements[elementDetails.name] = element
+        end
+    end
+    if elementDetails.storeName ~= nil then
+        if elementDetails.name == nil then
+            Logging.LogPrint("ERROR: GuiUtil.AddElement storeName attribute requires element name to be supplied.")
+        else
+            GuiUtil.AddElementToPlayersReferenceStorage(element.player_index, elementDetails.storeName, elementDetails.name, element)
         end
     end
     if elementDetails.styling ~= nil then
@@ -32,27 +39,23 @@ GuiUtil.AddElement = function(elementDetails)
             element.style[k] = v
         end
     end
-    if elementDetails.storeName ~= nil then
-        if elementDetails.name == nil then
-            Logging.LogPrint("ERROR: storeName attribute requires element name to be supplied.")
-        else
-            GuiUtil.AddElementToPlayersReferenceStorage(element.player_index, elementDetails.storeName, elementDetails.name, element)
-        end
-    end
     if elementDetails.registerClick ~= nil then
         if elementDetails.name == nil then
-            Logging.LogPrint("ERROR: registerClick attribute requires element name to be supplied.")
+            Logging.LogPrint("ERROR: GuiUtil.AddElement registerClick attribute requires element name to be supplied.")
         else
             GuiActionsClick.RegisterGuiForClick(rawName, elementDetails.type, elementDetails.registerClick.actionName, elementDetails.registerClick.data)
         end
     end
-
     if elementDetails.children ~= nil then
         for _, child in pairs(elementDetails.children) do
-            child.parent = element
-            local childReturnElements = GuiUtil.AddElement(child)
-            if childReturnElements ~= nil then
-                returnElements = Utils.TableMerge({returnElements, childReturnElements})
+            if type(child) ~= "table" then
+                Logging.LogPrint("ERROR: GuiUtil.AddElement children not supplied as an array of child details in their own table.")
+            else
+                child.parent = element
+                local childReturnElements = GuiUtil.AddElement(child)
+                if childReturnElements ~= nil then
+                    returnElements = Utils.TableMerge({returnElements, childReturnElements})
+                end
             end
         end
     end
@@ -96,16 +99,29 @@ GuiUtil.GetOrAddElement = function(arguments, storeName)
     return frameElement
 end
 
-GuiUtil.UpdateElementFromPlayersReferenceStorage = function(playerIndex, storeName, name, type, arguments)
+GuiUtil.UpdateElementFromPlayersReferenceStorage = function(playerIndex, storeName, name, type, arguments, ignoreMissingElement)
+    ignoreMissingElement = ignoreMissingElement or false
     local element = GuiUtil.GetElementFromPlayersReferenceStorage(playerIndex, storeName, name, type)
     if element ~= nil then
         local generatedName = GuiUtil.GenerateGuiElementName(name, type)
+        if arguments.styling ~= nil then
+            for k, v in pairs(arguments.styling) do
+                element.style[k] = v
+            end
+            arguments.styling = nil
+        end
+        if arguments.registerClick ~= nil then
+            GuiActionsClick.RegisterGuiForClick(name, type, arguments.registerClick.actionName, arguments.registerClick.data)
+            arguments.registerClick = nil
+        end
         for argName, argValue in pairs(arguments) do
             if argName == "caption" or argName == "tooltip" then
                 argValue = GuiUtil._ReplaceSelfWithGeneratedName({name = generatedName, [argName] = argValue}, argName)
             end
             element[argName] = argValue
         end
+    elseif not ignoreMissingElement then
+        Logging.LogPrint("ERROR: GuiUtil.UpdateElementFromPlayersReferenceStorage didn't find GUI element for name '" .. name .. "' and type '" .. type .. "'")
     end
     return element
 end
@@ -148,12 +164,13 @@ end
 
 GuiUtil._ReplaceSelfWithGeneratedName = function(arguments, argName)
     local arg = arguments[argName]
-    if arg == nil or arguments.name == nil then
+    local name = arguments.name or "missing"
+    if arg == nil then
         arg = nil
     elseif arg == "self" then
-        arg = {"gui-" .. argName .. "." .. arguments.name}
+        arg = {"gui-" .. argName .. "." .. name}
     elseif type(arg) == "table" and arg[1] ~= nil and arg[1] == "self" then
-        arg[1] = "gui-" .. argName .. "." .. arguments.name
+        arg[1] = "gui-" .. argName .. "." .. name
     end
     return arg
 end

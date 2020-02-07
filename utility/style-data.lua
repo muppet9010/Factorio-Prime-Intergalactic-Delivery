@@ -99,35 +99,37 @@ for _, margin in pairs({{"", 0, 0, 0, 0}, {"_marginTL", 4, 4, 0, 0}}) do
     end
 end
 
---TODO: Tables need updating to match new approach used above
-defaultStyle.muppet_padded_table = {
-    type = "table_style",
-    top_padding = 5,
-    --doesn't need bottom padding in 0.17
-    left_padding = 5,
-    right_padding = 5
-}
-defaultStyle.muppet_padded_table_and_cells = {
-    type = "table_style",
-    top_padding = 5,
-    --doesn't need bottom padding in 0.17
-    left_padding = 5,
-    right_padding = 5,
-    top_cell_padding = 5,
-    --doesn't need bottom padding in 0.17
-    left_cell_padding = 5,
-    right_cell_padding = 5
-}
-defaultStyle.muppet_padded_table_cells = {
-    type = "table_style",
-    top_cell_padding = 5,
-    --doesn't need bottom padding in 0.17
-    left_cell_padding = 5,
-    right_cell_padding = 5
-}
+--TABLE
+for _, tableMargin in pairs({{"", 0, 0, 0, 0}, {"_marginTL", 4, 4, 0, 0}}) do
+    for _, tablePadding in pairs({{"", 0, 0, 0, 0}, {"_paddingBR", 0, 0, 4, 4}}) do
+        for _, cellMargin in pairs({{"", 0, 0, 0, 0}, {"_cellMarginTL", 4, 4, 0, 0}}) do
+            for _, cellPadding in pairs({{"", 0, 0, 0, 0}, {"_cellMaddingBR", 0, 0, 4, 4}}) do
+                defaultStyle["muppet_table" .. tableMargin[1] .. tablePadding[1] .. cellMargin[1] .. cellPadding[1]] = {
+                    type = "table_style",
+                    left_margin = tableMargin[2],
+                    top_margin = tableMargin[3],
+                    right_margin = tableMargin[4],
+                    bottom_margin = tableMargin[5],
+                    left_padding = tablePadding[2],
+                    top_padding = tablePadding[3],
+                    right_padding = tablePadding[4],
+                    bottom_padding = tablePadding[5],
+                    left_cell_margin = cellMargin[2],
+                    top_cell_margin = cellMargin[3],
+                    right_cell_margin = cellMargin[4],
+                    bottom_cell_margin = cellMargin[5],
+                    left_cell_padding = cellPadding[2],
+                    top_cell_padding = cellPadding[3],
+                    right_cell_padding = cellPadding[4],
+                    bottom_cell_padding = cellPadding[5]
+                }
+            end
+        end
+    end
+end
 
 --SPRITE
-for _, size in pairs({{"_icon", 64}}) do
+for _, size in pairs({{"_32", 32}, {"_48", 48}, {"_64", 64}}) do
     defaultStyle["muppet_sprite" .. size[1]] = {
         type = "image_style",
         width = size[2],
@@ -143,11 +145,11 @@ end
 for _, attributes in pairs(
     {
         {"", {}},
-        {"_frame", {top_margin = 4, default_graphical_set = {base = {position = {0, 0}, corner_size = 8}, shadow = {position = {440, 24}, corner_size = 8, draw_type = "outer"}}}} --top_margin is to fix the unusually high position of this setup
+        {"_frame", {top_margin = 4, default_graphical_set = {base = {position = {0, 0}, corner_size = 8}, shadow = {position = {440, 24}, corner_size = 8, draw_type = "outer"}}}} --top_margin is to fix the unusually high position of this setup,
     }
 ) do
-    for _, size in pairs({{"_mod", 36}, {"_smallText", 28}, {"_icon", 64}, {"_clickable", 16}}) do
-        local name = "muppet_button_sprite" .. attributes[1] .. size[1]
+    for _, size in pairs({{"_mod", 36}, {"_smallText", 28}, {"_clickable", 16}, {"_32", 32}, {"_48", 48}, {"_64", 64}}) do
+        local name = "muppet_sprite_button" .. attributes[1] .. size[1]
         defaultStyle[name] = {
             type = "button_style",
             width = size[2],
@@ -178,7 +180,7 @@ for _, textSize in pairs({{"_small", "default"}, {"_medium", "default-medium"}, 
     for _, boldness in pairs({{"", ""}, {"_semibold", "-semibold"}, {"_bold", "-bold"}}) do
         for _, purpose in pairs({{"_text", {255, 255, 255}}, {"_heading", Colors.guiheadingcolor}}) do
             for _, margin in pairs({{"", 0, 0, 0, 0}, {"_marginTL", 4, 4, 0, 0}}) do
-                for _, padding in pairs({{"", 0, 0, 0, 0}, {"_paddingBR", 0, 0, 4, 4}}) do
+                for _, padding in pairs({{"", 0, 0, 0, 0}, {"_paddingBR", 0, 0, 4, 4}, {"_paddingSides", 4, 0, 4, 0}}) do
                     defaultStyle["muppet_label" .. purpose[1] .. textSize[1] .. boldness[1] .. margin[1] .. padding[1]] = {
                         type = "label_style",
                         font = textSize[2] .. boldness[2],
