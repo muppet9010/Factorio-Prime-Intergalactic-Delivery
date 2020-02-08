@@ -154,7 +154,6 @@ ShopGui.CreateGuiStructure = function(player)
                                     type = "flow",
                                     direction = "vertical",
                                     style = "muppet_flow_vertical_marginTL",
-                                    styling = {height = 300},
                                     children = {
                                         {
                                             type = "scroll-pane",
@@ -162,7 +161,7 @@ ShopGui.CreateGuiStructure = function(player)
                                             horizontal_scroll_policy = "never",
                                             vertical_scroll_policy = "always",
                                             style = "muppet_scroll",
-                                            styling = {horizontally_stretchable = true, vertically_stretchable = true},
+                                            styling = {horizontally_stretchable = true, vertically_stretchable = true, height = 300},
                                             children = {
                                                 {
                                                     name = "shopGuiItemList",
@@ -266,7 +265,7 @@ ShopGui.CreateGuiStructure = function(player)
                                             horizontal_scroll_policy = "never",
                                             vertical_scroll_policy = "always",
                                             style = "muppet_scroll_marginTL",
-                                            styling = {horizontally_stretchable = true, right_margin = 4},
+                                            styling = {horizontally_stretchable = true, right_margin = 4, height = 328},
                                             children = {
                                                 {
                                                     name = "shopGuiBasketList",
@@ -275,7 +274,7 @@ ShopGui.CreateGuiStructure = function(player)
                                                     column_count = 3,
                                                     storeName = "ShopGui",
                                                     draw_horizontal_line_after_headers = true,
-                                                    styling = {column_alignments = {"left", "left", "right"}, vertically_stretchable = true, height = 328}
+                                                    styling = {column_alignments = {"left", "left", "right"}, vertically_stretchable = true}
                                                 }
                                             }
                                         },
@@ -341,7 +340,7 @@ ShopGui.CreateGuiStructure = function(player)
                                                     type = "flow",
                                                     direction = "vertical",
                                                     style = "muppet_flow_vertical_spaced",
-                                                    styling = {horizontal_align = "center", height = 80, width = 180, left_margin = 8, top_margin = 2},
+                                                    styling = {horizontal_align = "center", height = 88, width = 170, left_margin = 8},
                                                     children = {
                                                         {
                                                             name = "shopGuiBasketDeliveryEta",
@@ -360,7 +359,7 @@ ShopGui.CreateGuiStructure = function(player)
                                                                     name = "shopGuiBasketBuy",
                                                                     type = "button",
                                                                     style = "muppet_button_text_large_bold",
-                                                                    styling = {left_padding = 20, right_padding = 20, bottom_margin = -6},
+                                                                    styling = {left_padding = 20, right_padding = 20, bottom_margin = -4},
                                                                     caption = "self",
                                                                     storeName = "ShopGui",
                                                                     registerClick = {actionName = "ShopGui.BuyBasketAction"},
