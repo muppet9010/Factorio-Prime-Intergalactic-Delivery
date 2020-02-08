@@ -5,7 +5,7 @@ local GuiActionsOpened = require("utility/gui-actions-opened")
 local Interfaces = require("utility/interfaces")
 local Events = require("utility/events")
 local Colors = require("utility/colors")
-local Logging = require("utility/logging")
+--local Logging = require("utility/logging")
 local Utils = require("utility/utils")
 
 local coinIconText = " [img=item/coin]"
@@ -145,15 +145,16 @@ ShopGui.CreateGuiStructure = function(player)
                     style = "muppet_flow_horizontal",
                     children = {
                         {
-                            type = "flow",
+                            type = "frame",
                             direction = "vertical",
-                            style = "muppet_flow_vertical",
+                            style = "muppet_frame_content_shadowRisen_marginTL_paddingBR",
+                            styling = {width = 500},
                             children = {
                                 {
                                     type = "flow",
                                     direction = "vertical",
                                     style = "muppet_flow_vertical_marginTL",
-                                    styling = {width = 500, height = 300, padding = 2}, --make the scroll pane fit with other frames via theis flow
+                                    styling = {height = 300},
                                     children = {
                                         {
                                             type = "scroll-pane",
@@ -175,79 +176,72 @@ ShopGui.CreateGuiStructure = function(player)
                                     }
                                 },
                                 {
-                                    type = "frame",
-                                    direction = "vertical",
-                                    style = "muppet_frame_content_shadowRisen_marginTL_paddingBR",
-                                    styling = {width = 500},
+                                    type = "flow",
+                                    direction = "horizontal",
+                                    style = "muppet_flow_horizontal_marginTL_spaced",
+                                    styling = {height = 124},
                                     children = {
                                         {
                                             type = "flow",
-                                            direction = "horizontal",
-                                            style = "muppet_flow_horizontal_marginTL_spaced",
+                                            direction = "vertical",
+                                            style = "muppet_flow_vertical_spaced",
+                                            styling = {horizontal_align = "center", top_margin = 4},
+                                            children = {
+                                                {
+                                                    name = "shopGuiItemDetailsImage",
+                                                    type = "sprite",
+                                                    style = "muppet_sprite_64",
+                                                    storeName = "ShopGui"
+                                                },
+                                                {
+                                                    name = "shopGuiItemDetailsPrice",
+                                                    type = "label",
+                                                    style = "muppet_label_text_small_semibold",
+                                                    storeName = "ShopGui",
+                                                    caption = " "
+                                                },
+                                                {
+                                                    name = "shopGuiItemDetailsAdd",
+                                                    type = "button",
+                                                    style = "muppet_button_text_small_paddingSides",
+                                                    caption = "self",
+                                                    storeName = "ShopGui",
+                                                    enabled = false
+                                                }
+                                            }
+                                        },
+                                        {
+                                            type = "line",
+                                            direction = "vertical",
+                                            style = "line",
+                                            styling = {vertically_stretchable = true}
+                                        },
+                                        {
+                                            type = "flow",
+                                            direction = "vertical",
+                                            style = "muppet_flow_vertical",
+                                            styling = {horizontally_stretchable = true},
                                             children = {
                                                 {
                                                     type = "flow",
                                                     direction = "vertical",
-                                                    style = "muppet_flow_vertical_spaced",
-                                                    styling = {horizontal_align = "center", top_margin = 4, bottom_margin = 4},
-                                                    children = {
-                                                        {
-                                                            name = "shopGuiItemDetailsImage",
-                                                            type = "sprite",
-                                                            style = "muppet_sprite_64",
-                                                            storeName = "ShopGui"
-                                                        },
-                                                        {
-                                                            name = "shopGuiItemDetailsPrice",
-                                                            type = "label",
-                                                            style = "muppet_label_text_small_semibold",
-                                                            storeName = "ShopGui",
-                                                            caption = " "
-                                                        },
-                                                        {
-                                                            name = "shopGuiItemDetailsAdd",
-                                                            type = "button",
-                                                            style = "muppet_button_text_small_paddingSides",
-                                                            caption = "self",
-                                                            storeName = "ShopGui",
-                                                            enabled = false
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    type = "line",
-                                                    direction = "vertical",
-                                                    style = "line",
-                                                    styling = {vertically_stretchable = true}
-                                                },
-                                                {
-                                                    type = "flow",
-                                                    direction = "vertical",
                                                     style = "muppet_flow_vertical",
-                                                    styling = {horizontally_stretchable = true},
+                                                    styling = {horizontal_align = "center"},
                                                     children = {
                                                         {
-                                                            type = "flow",
-                                                            direction = "vertical",
-                                                            style = "muppet_flow_vertical",
-                                                            styling = {horizontal_align = "center"},
-                                                            children = {
-                                                                {
-                                                                    name = "shopGuiItemDetailsTitle",
-                                                                    type = "label",
-                                                                    style = "muppet_label_heading_medium_semibold",
-                                                                    storeName = "ShopGui",
-                                                                    styling = {horizontally_stretchable = true}
-                                                                }
-                                                            }
-                                                        },
-                                                        {
-                                                            name = "shopGuiItemsDetailsDescription",
+                                                            name = "shopGuiItemDetailsTitle",
                                                             type = "label",
-                                                            style = "muppet_label_text_small",
-                                                            storeName = "ShopGui"
+                                                            style = "muppet_label_heading_medium_semibold",
+                                                            storeName = "ShopGui",
+                                                            styling = {horizontally_stretchable = true}
                                                         }
                                                     }
+                                                },
+                                                {
+                                                    name = "shopGuiItemsDetailsDescription",
+                                                    type = "label",
+                                                    style = "muppet_label_text_small",
+                                                    storeName = "ShopGui"
                                                 }
                                             }
                                         }
@@ -272,7 +266,7 @@ ShopGui.CreateGuiStructure = function(player)
                                             horizontal_scroll_policy = "never",
                                             vertical_scroll_policy = "always",
                                             style = "muppet_scroll_marginTL",
-                                            styling = {horizontally_stretchable = true},
+                                            styling = {horizontally_stretchable = true, right_margin = 4},
                                             children = {
                                                 {
                                                     name = "shopGuiBasketList",
@@ -289,12 +283,12 @@ ShopGui.CreateGuiStructure = function(player)
                                             type = "flow",
                                             direction = "horizontal",
                                             style = "muppet_flow_horizontal",
-                                            styling = {left_margin = 4, top_margin = 8, bottom_margin = -6},
+                                            styling = {top_margin = 8, bottom_margin = 0},
                                             children = {
                                                 {
                                                     type = "frame",
                                                     style = "muppet_frame_contentInnerDark_shadowSunken",
-                                                    styling = {width = 200, margin = -2},
+                                                    styling = {width = 200, left_margin = 4},
                                                     children = {
                                                         {
                                                             type = "table",

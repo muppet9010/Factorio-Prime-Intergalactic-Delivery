@@ -47,7 +47,7 @@ for _, direction in pairs({{"_horizontal", "horizontal"}, {"_vertical", "vertica
     end
 end
 
---FRAME - the shadow types include a +2 pixel padding/margin on the correct side for the shadow.
+--FRAME - the shadow types include padding/margins to handle the graphics. take this in to account if overwriting the values.
 for _, graphic in pairs(
     {
         {"_main", {base = {position = {0, 0}, corner_size = 8}}, 0, 0},
@@ -87,10 +87,10 @@ for _, margin in pairs({{"", 0, 0, 0, 0}, {"_marginTL", 4, 4, 0, 0}}) do
     for _, padding in pairs({{"", 0, 0, 0, 0}, {"_paddingBR", 0, 0, 4, 4}}) do
         defaultStyle["muppet_scroll" .. margin[1] .. padding[1]] = {
             type = "scroll_pane_style",
-            left_margin = margin[2],
-            top_margin = margin[3],
-            right_margin = margin[4],
-            bottom_margin = margin[5],
+            left_margin = 2 + margin[2],
+            top_margin = 2 + margin[3],
+            right_margin = 2 + margin[4],
+            bottom_margin = 2 + margin[5],
             left_padding = padding[2],
             top_padding = padding[3],
             right_padding = padding[4],
