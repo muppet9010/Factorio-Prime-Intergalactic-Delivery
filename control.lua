@@ -39,6 +39,7 @@ script.on_configuration_changed(OnStartup)
 Events.RegisterEvent(defines.events.on_runtime_mod_setting_changed)
 script.on_load(OnLoad)
 Events.RegisterEvent(defines.events.on_player_left_game)
+Events.RegisterEvent(defines.events.on_player_died)
 
 GuiActionsClick.MonitorGuiClickActions()
 EventScheduler.RegisterScheduler()
