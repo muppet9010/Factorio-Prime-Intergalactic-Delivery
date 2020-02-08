@@ -3,14 +3,32 @@ local GuiUtil = require("utility/gui-util")
 local GuiActionsClick = require("utility/gui-actions-click")
 local GuiActionsOpened = require("utility/gui-actions-opened")
 local Interfaces = require("utility/interfaces")
---local Logging = require("utility/logging")
+local Events = require("utility/events")
+local Colors = require("utility/colors")
+local Logging = require("utility/logging")
+local Utils = require("utility/utils")
+
+local coinIconText = "[img=item/coin]"
+
+ShopGui.CreateGlobals = function()
+    global.shopGui = global.shopGui or {}
+    global.shopGui.guiOpenPlayerIndex = global.shopGui.guiOpenPlayerIndex or nil
+    global.shopGui.guiOpenPlayerText = global.shopGui.guiOpenPlayerText or nil
+    global.shopGui.guiOpenShopText = global.shopGui.guiOpenShopText or nil
+    global.shopGui.shoppingBasket = global.shopGui.shoppingBasket or {}
+end
 
 ShopGui.OnLoad = function()
     Interfaces.RegisterInterface("ShopGui.RegisterMarketForOpened", ShopGui.RegisterMarketForOpened)
     GuiActionsOpened.LinkGuiOpenedActionNameToFunction("ShopGui.MarketOpened", ShopGui.MarketOpened)
     GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.CloseGuiClickAction", ShopGui.CloseGuiClickAction)
     GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.AddToShoppingBasketAction", ShopGui.AddToShoppingBasketAction)
-    GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.SelectItemInList", ShopGui.SelectItemInList)
+    GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.SelectItemInListAction", ShopGui.SelectItemInListAction)
+    Events.RegisterHandler(defines.events.on_player_left_game, "ShopGui.OnPlayerLeftGame", ShopGui.OnPlayerLeftGame)
+    GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.BuyBasketAction", ShopGui.BuyBasketAction)
+    GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.EmptyBasketAction", ShopGui.EmptyBasketAction)
+    Interfaces.RegisterInterface("ShopGui.RecreateGui", ShopGui.RecreateGui)
+    GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.ChangeBasketQuantity", ShopGui.ChangeBasketQuantity)
 end
 
 ShopGui.RegisterMarketForOpened = function(marketEntity)
@@ -20,10 +38,10 @@ end
 ShopGui.MarketOpened = function(actionData)
     local player = game.get_player(actionData.playerIndex)
     player.opened = nil --close the market GUI
-    ShopGui.CloseGui(player.index)
+    if global.shopGui.guiOpenPlayerIndex then
+        return
+    end
     ShopGui.CreateGui(player)
-
-    ShopGui.PopulateItemsList(player.index)
 end
 
 ShopGui.CloseGuiClickAction = function(actionData)
@@ -31,15 +49,43 @@ ShopGui.CloseGuiClickAction = function(actionData)
 end
 
 ShopGui.CloseGui = function(playerIndex)
-    GuiUtil.DestroyElementInPlayersReferenceStorage(playerIndex, "ShopGui", "shopMain", "frame")
+    global.shopGui.guiOpenPlayerIndex = nil
+    rendering.destroy(global.shopGui.guiOpenPlayerText)
+    rendering.destroy(global.shopGui.guiOpenShopText)
+    GuiUtil.DestroyElementInPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiMain", "frame")
+end
+
+ShopGui.OnPlayerLeftGame = function(playerIndex)
+    if playerIndex == global.shopGui.guiOpenPlayerIndex then
+        ShopGui.CloseGui(playerIndex)
+    end
+end
+
+ShopGui.RecreateGui = function()
+    local playerIndex = global.shopGui.guiOpenPlayerIndex
+    if playerIndex == nil then
+        return
+    end
+    ShopGui.CloseGui(playerIndex)
+    ShopGui.CreateGui(game.get_player(playerIndex))
 end
 
 ShopGui.CreateGui = function(player)
+    global.shopGui.guiOpenPlayerIndex = player.index
+    global.shopGui.guiOpenPlayerText = rendering.draw_text {text = {"rendering-text.prime_intergalactic_delivery-player_in_shop_gui"}, surface = global.facility.surface, target = player.character, color = Colors.white}
+    global.shopGui.guiOpenShopText = rendering.draw_text {text = {"rendering-text.prime_intergalactic_delivery-shop_gui_in_use"}, surface = global.facility.surface, target = global.facility.shop, color = Colors.white}
+
+    ShopGui.CreateMainGui(player)
+    ShopGui.PopulateItemsList(player.index)
+    ShopGui.UpdateShoppingBasket(player.index)
+end
+
+ShopGui.CreateMainGui = function(player)
     local elements =
         GuiUtil.AddElement(
         {
             parent = player.gui.center,
-            name = "shopMain",
+            name = "shopGuiMain",
             type = "frame",
             direction = "vertical",
             style = "muppet_frame_main_shadowRisen_paddingBR",
@@ -76,14 +122,14 @@ ShopGui.CreateGui = function(player)
                     }
                 },
                 {
-                    name = "shopMainContent",
+                    name = "shopGuiMainContent",
                     type = "flow",
                     direction = "horizontal",
                     style = "muppet_flow_horizontal",
                     returnElement = true,
                     children = {
                         {
-                            name = "shopMainLeftColumn",
+                            name = "shopGuiMainLeftColumn",
                             type = "flow",
                             direction = "vertical",
                             style = "muppet_flow_vertical",
@@ -104,7 +150,7 @@ ShopGui.CreateGui = function(player)
                                             styling = {horizontally_stretchable = true, vertically_stretchable = true},
                                             children = {
                                                 {
-                                                    name = "shopItemList",
+                                                    name = "shopGuiItemList",
                                                     type = "table",
                                                     column_count = 5,
                                                     storeName = "ShopGui",
@@ -122,10 +168,10 @@ ShopGui.CreateGui = function(player)
         }
     )
 
-    local shopMainLeftColumnFlow = GuiUtil.GetNameFromReturnedElements(elements, "shopMainLeftColumn", "flow")
-    local shopMainContentFlow = GuiUtil.GetNameFromReturnedElements(elements, "shopMainContent", "flow")
-    ShopGui.CreateItemDetails(shopMainLeftColumnFlow)
-    ShopGui.CreateShoppingBasket(shopMainContentFlow)
+    local shopGuiMainLeftColumn = GuiUtil.GetNameFromReturnedElements(elements, "shopGuiMainLeftColumn", "flow")
+    local shopGuiMainContent = GuiUtil.GetNameFromReturnedElements(elements, "shopGuiMainContent", "flow")
+    ShopGui.CreateItemDetails(shopGuiMainLeftColumn)
+    ShopGui.CreateShoppingBasket(shopGuiMainContent)
 end
 
 ShopGui.CreateItemDetails = function(shopMainLeftColumnFlow)
@@ -149,23 +195,23 @@ ShopGui.CreateItemDetails = function(shopMainLeftColumnFlow)
                             styling = {horizontal_align = "center", top_margin = 4, bottom_margin = 4},
                             children = {
                                 {
-                                    name = "itemDetailsImage",
+                                    name = "shopGuiItemDetailsImage",
                                     type = "sprite",
                                     style = "muppet_sprite_64",
                                     storeName = "ShopGui"
                                 },
                                 {
-                                    name = "itemDetailsPrice",
+                                    name = "shopGuiItemDetailsPrice",
                                     type = "label",
                                     style = "muppet_label_text_small_semibold",
                                     storeName = "ShopGui",
                                     caption = " "
                                 },
                                 {
-                                    name = "itemDetailsAdd",
+                                    name = "shopGuiItemDetailsAdd",
                                     type = "button",
-                                    style = "muppet_small_button",
-                                    caption = "Add to basket",
+                                    style = "muppet_button_text_small_paddingSides",
+                                    caption = "self",
                                     storeName = "ShopGui",
                                     enabled = false
                                 }
@@ -190,7 +236,7 @@ ShopGui.CreateItemDetails = function(shopMainLeftColumnFlow)
                                     styling = {horizontal_align = "center"},
                                     children = {
                                         {
-                                            name = "itemDetailsTitle",
+                                            name = "shopGuiItemDetailsTitle",
                                             type = "label",
                                             style = "muppet_label_heading_medium_semibold",
                                             storeName = "ShopGui",
@@ -199,7 +245,7 @@ ShopGui.CreateItemDetails = function(shopMainLeftColumnFlow)
                                     }
                                 },
                                 {
-                                    name = "shopItemsDetailsDescription",
+                                    name = "shopGuiItemsDetailsDescription",
                                     type = "label",
                                     style = "muppet_label_text_small",
                                     storeName = "ShopGui"
@@ -220,45 +266,167 @@ ShopGui.CreateShoppingBasket = function(shopMainContentFlow)
             type = "frame",
             direction = "vertical",
             style = "muppet_frame_content_shadowRisen_marginTL_paddingBR",
-            styling = {width = 400, vertically_stretchable = true}
+            styling = {width = 400},
+            children = {
+                {
+                    type = "flow",
+                    direction = "vertical",
+                    style = "muppet_flow_vertical_spaced",
+                    children = {
+                        {
+                            type = "scroll-pane",
+                            direction = "vertical",
+                            horizontal_scroll_policy = "never",
+                            vertical_scroll_policy = "always",
+                            style = "muppet_scroll_marginTL",
+                            styling = {horizontally_stretchable = true, vertically_stretchable = true},
+                            children = {
+                                {
+                                    name = "shopGuiBasketList",
+                                    type = "table",
+                                    style = "muppet_table_cellPadded",
+                                    column_count = 3,
+                                    storeName = "ShopGui",
+                                    draw_horizontal_line_after_headers = true,
+                                    styling = {column_alignments = {"left", "left", "right"}}
+                                }
+                            }
+                        },
+                        {
+                            type = "flow",
+                            direction = "horizontal",
+                            style = "muppet_flow_horizontal",
+                            styling = {left_margin = 4, top_margin = 8},
+                            children = {
+                                {
+                                    type = "frame",
+                                    style = "muppet_frame_contentInnerDark_shadowSunken",
+                                    styling = {width = 200},
+                                    children = {
+                                        {
+                                            type = "table",
+                                            style = "muppet_table_verticalSpaced",
+                                            column_count = 2,
+                                            styling = {column_alignments = {"left", "right"}},
+                                            children = {
+                                                {
+                                                    name = "shopGuiBasketCreditLabel",
+                                                    type = "label",
+                                                    style = "muppet_label_text_medium_semibold",
+                                                    caption = "self",
+                                                    styling = {horizontally_stretchable = true}
+                                                },
+                                                {
+                                                    name = "shopGuiBasketCreditValue",
+                                                    type = "label",
+                                                    style = "muppet_label_text_medium",
+                                                    storeName = "ShopGui"
+                                                },
+                                                {
+                                                    name = "shopGuiBasketTotalCostLabel",
+                                                    type = "label",
+                                                    style = "muppet_label_text_medium_semibold",
+                                                    caption = "self"
+                                                },
+                                                {
+                                                    name = "shopGuiBasketTotalCostValue",
+                                                    type = "label",
+                                                    style = "muppet_label_text_medium",
+                                                    storeName = "ShopGui"
+                                                },
+                                                {
+                                                    name = "shopGuiBasketAvailableLabel",
+                                                    type = "label",
+                                                    style = "muppet_label_text_medium_semibold",
+                                                    caption = "self"
+                                                },
+                                                {
+                                                    name = "shopGuiBasketAvailableValue",
+                                                    type = "label",
+                                                    style = "muppet_label_text_medium",
+                                                    storeName = "ShopGui"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    type = "flow",
+                                    direction = "vertical",
+                                    style = "muppet_flow_vertical_spaced",
+                                    styling = {horizontal_align = "center", horizontally_stretchable = true},
+                                    children = {
+                                        {
+                                            name = "shopGuiBasketBuy",
+                                            type = "button",
+                                            style = "muppet_button_text_large_bold_paddingSides",
+                                            caption = "self",
+                                            storeName = "ShopGui",
+                                            registerClick = {actionName = "ShopGui.BuyBasketAction"},
+                                            enabled = false
+                                        },
+                                        {
+                                            name = "shopGuiBasketDeliveryEta",
+                                            type = "label",
+                                            style = "muppet_label_text_small",
+                                            caption = {"self", "1 day"}, -- TODO: replace this with the delivery time setting nice print.
+                                            styling = {vertical_align = "center"}
+                                        },
+                                        {
+                                            name = "shopGuiBasketEmpty",
+                                            type = "button",
+                                            style = "muppet_button_text_small_paddingNone",
+                                            styling = {top_margin = 10},
+                                            caption = "self",
+                                            storeName = "ShopGui",
+                                            registerClick = {actionName = "ShopGui.EmptyBasketAction"},
+                                            enabled = false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     )
 end
 
 ShopGui.PopulateItemsList = function(playerIndex)
-    local itemListTable = GuiUtil.GetElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopItemList", "table")
+    local itemListTable = GuiUtil.GetElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemList", "table")
     itemListTable.clear()
     for itemName, itemDetails in pairs(global.shop.items) do
         GuiUtil.AddElement(
             {
                 parent = itemListTable,
-                name = itemName,
+                name = "guiShopItemList" .. itemName,
                 type = "frame",
                 direction = "vertical",
                 style = "muppet_frame_contentInnerLight_shadowRisen",
-                registerClick = {actionName = "ShopGui.SelectItemInList", data = {itemName = itemName}},
+                registerClick = {actionName = "ShopGui.SelectItemInListAction", data = {itemName = itemName}},
                 children = {
                     {
-                        name = itemName,
+                        name = "guiShopItemList" .. itemName,
                         type = "flow",
                         direction = "vertical",
                         style = "muppet_flow_vertical_spaced",
-                        styling = {horizontal_align = "center", horizontally_stretchable = true, vertically_stretchable = true},
-                        registerClick = {actionName = "ShopGui.SelectItemInList", data = {itemName = itemName}},
+                        styling = {horizontal_align = "center", natural_width = 92, natural_height = 72},
+                        registerClick = {actionName = "ShopGui.SelectItemInListAction", data = {itemName = itemName}},
                         children = {
                             {
-                                name = itemName,
+                                name = "guiShopItemList" .. itemName,
                                 type = "sprite",
                                 style = "muppet_sprite_48",
                                 sprite = itemDetails.picture,
-                                registerClick = {actionName = "ShopGui.SelectItemInList", data = {itemName = itemName}}
+                                registerClick = {actionName = "ShopGui.SelectItemInListAction", data = {itemName = itemName}}
                             },
                             {
-                                name = itemName,
+                                name = "guiShopItemList" .. itemName,
                                 type = "label",
-                                style = "muppet_label_text_small",
-                                caption = itemDetails.price .. "[img=item/coin]",
-                                registerClick = {actionName = "ShopGui.SelectItemInList", data = {itemName = itemName}}
+                                style = "muppet_label_text_small_bold",
+                                caption = itemDetails.price .. coinIconText,
+                                registerClick = {actionName = "ShopGui.SelectItemInListAction", data = {itemName = itemName}}
                             }
                         }
                     }
@@ -268,28 +436,158 @@ ShopGui.PopulateItemsList = function(playerIndex)
     end
 end
 
-ShopGui.AddToShoppingBasketAction = function(actionData)
-    game.print("create ShopGui.AddToShoppingBasketAction: " .. actionData.data.itemName)
-end
-
-ShopGui.SelectItemInList = function(actionData)
+ShopGui.SelectItemInListAction = function(actionData)
     local playerIndex, itemName = actionData.playerIndex, actionData.data.itemName
     local itemDetails = global.shop.items[itemName]
 
-    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "itemDetailsTitle", "label", {caption = {itemDetails.localisedName}})
-    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "itemDetailsImage", "sprite", {sprite = itemDetails.picture})
-    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopItemsDetailsDescription", "label", {caption = {itemDetails.localisedDescription}})
-    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "itemDetailsPrice", "label", {caption = itemDetails.price .. "[img=item/coin]"})
+    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemDetailsTitle", "label", {caption = {itemDetails.localisedName}})
+    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemDetailsImage", "sprite", {sprite = itemDetails.picture})
+    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemsDetailsDescription", "label", {caption = {itemDetails.localisedDescription}})
+    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemDetailsPrice", "label", {caption = itemDetails.price .. coinIconText})
     GuiUtil.UpdateElementFromPlayersReferenceStorage(
         playerIndex,
         "ShopGui",
-        "itemDetailsAdd",
+        "shopGuiItemDetailsAdd",
         "button",
         {
             registerClick = {actionName = "ShopGui.AddToShoppingBasketAction", data = {itemName = itemName}},
             enabled = true
         }
     )
+end
+
+ShopGui.AddToShoppingBasketAction = function(actionData)
+    local itemName = actionData.data.itemName
+    global.shopGui.shoppingBasket[itemName] = (global.shopGui.shoppingBasket[itemName] or 0) + 1
+    ShopGui.UpdateShoppingBasket(actionData.playerIndex)
+end
+
+ShopGui.UpdateShoppingBasket = function(playerIndex)
+    local shoppingBasketList = GuiUtil.GetElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiBasketList", "table")
+    shoppingBasketList.clear()
+    GuiUtil.AddElement({parent = shoppingBasketList, type = "label", style = "muppet_label_heading_small_bold", caption = {"gui-caption.prime_intergalactic_delivery-shopGuiBasketItemNameHeading"}, styling = {horizontally_stretchable = true}})
+    GuiUtil.AddElement({parent = shoppingBasketList, type = "label", style = "muppet_label_heading_small_bold", caption = {"gui-caption.prime_intergalactic_delivery-shopGuiBasketItemQuantityHeading"}})
+    GuiUtil.AddElement({parent = shoppingBasketList, type = "label", style = "muppet_label_heading_small_bold", caption = {"gui-caption.prime_intergalactic_delivery-shopGuiBasketItemPriceHeading"}, styling = {left_margin = 4}})
+
+    local totalCostValue = 0
+    for itemName, itemQuantity in pairs(global.shopGui.shoppingBasket) do
+        local itemDetails = global.shop.items[itemName]
+        if itemDetails == nil then
+            global.shop.items[itemName] = nil
+        else
+            local itemQuantityCost = (itemDetails.price * itemQuantity)
+            totalCostValue = totalCostValue + itemQuantityCost
+            GuiUtil.AddElement(
+                {
+                    parent = shoppingBasketList,
+                    type = "label",
+                    style = "muppet_label_text_small_semibold",
+                    caption = {itemDetails.localisedName}
+                }
+            )
+            GuiUtil.AddElement(
+                {
+                    parent = shoppingBasketList,
+                    type = "flow",
+                    direction = "horizontal",
+                    style = "muppet_flow_horizontal",
+                    children = {
+                        {
+                            type = "flow",
+                            direction = "vertical",
+                            style = "muppet_flow_vertical",
+                            styling = {vertical_spacing = 2, vertically_stretchable = true, vertical_align = "center"},
+                            children = {
+                                {
+                                    name = "shopGuiBasketItemQuantityIncrease" .. itemName,
+                                    type = "sprite-button",
+                                    sprite = "prime_intergalactic_delivery-basket_up_arrow",
+                                    hovered_sprite = "prime_intergalactic_delivery-basket_up_arrow_hovered",
+                                    clicked_sprite = "prime_intergalactic_delivery-basket_up_arrow_hovered",
+                                    style = "muppet_sprite_button_noBorder",
+                                    styling = {width = 14, height = 7},
+                                    registerClick = {actionName = "ShopGui.ChangeBasketQuantity", data = {itemName = itemName, change = 1}}
+                                },
+                                {
+                                    name = "shopGuiBasketItemQuantityDecrease" .. itemName,
+                                    type = "sprite-button",
+                                    sprite = "prime_intergalactic_delivery-basket_down_arrow",
+                                    hovered_sprite = "prime_intergalactic_delivery-basket_down_arrow_hovered",
+                                    clicked_sprite = "prime_intergalactic_delivery-basket_down_arrow_hovered",
+                                    style = "muppet_sprite_button_noBorder",
+                                    styling = {width = 14, height = 7},
+                                    registerClick = {actionName = "ShopGui.ChangeBasketQuantity", data = {itemName = itemName, change = -1}}
+                                }
+                            }
+                        },
+                        {
+                            type = "label",
+                            style = "muppet_label_text_small_semibold",
+                            caption = itemQuantity
+                        }
+                    }
+                }
+            )
+            GuiUtil.AddElement(
+                {
+                    parent = shoppingBasketList,
+                    type = "label",
+                    style = "muppet_label_text_small_semibold",
+                    caption = itemQuantityCost .. coinIconText
+                }
+            )
+        end
+    end
+
+    local creditValue = global.facility.paymentChest.get_item_count("coin")
+    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiBasketCreditValue", "label", {caption = creditValue .. coinIconText})
+    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiBasketTotalCostValue", "label", {caption = totalCostValue .. coinIconText})
+    local availableValue = creditValue - totalCostValue
+    local availableValueColor
+    local shoppingBasketBuyButton = GuiUtil.GetElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiBasketBuy", "button")
+    local shoppingBasketEmptyButton = GuiUtil.GetElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiBasketEmpty", "button")
+    if availableValue < 0 then
+        availableValueColor = Colors.red
+        shoppingBasketBuyButton.enabled = false
+    else
+        availableValueColor = Colors.white
+        if totalCostValue > 0 then
+            shoppingBasketBuyButton.enabled = true
+        else
+            shoppingBasketBuyButton.enabled = false
+        end
+    end
+    if totalCostValue > 0 then
+        shoppingBasketEmptyButton.enabled = true
+    else
+        shoppingBasketEmptyButton.enabled = false
+    end
+    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiBasketAvailableValue", "label", {caption = availableValue .. coinIconText, styling = {font_color = availableValueColor}})
+end
+
+ShopGui.ChangeBasketQuantity = function(actionData)
+    local itemName, change = actionData.data.itemName, actionData.data.change
+    local value = global.shopGui.shoppingBasket[itemName] + change
+    if value < 0 then
+        value = 0
+    end
+    if value > 0 then
+        global.shopGui.shoppingBasket[itemName] = value
+    else
+        global.shopGui.shoppingBasket[itemName] = nil
+    end
+    ShopGui.UpdateShoppingBasket(actionData.playerIndex)
+end
+
+ShopGui.BuyBasketAction = function(actionData)
+    Interfaces.Call("Shop.BuyBasketItems")
+    ShopGui.EmptyBasketAction(actionData)
+    ShopGui.CloseGui(actionData.playerIndex)
+end
+
+ShopGui.EmptyBasketAction = function(actionData)
+    global.shopGui.shoppingBasket = {}
+    ShopGui.UpdateShoppingBasket(actionData.playerIndex)
 end
 
 return ShopGui

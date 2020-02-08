@@ -35,9 +35,8 @@ GuiUtil.AddElement = function(elementDetails)
         end
     end
     if elementDetails.styling ~= nil then
-        for k, v in pairs(elementDetails.styling) do
-            element.style[k] = v
-        end
+        GuiUtil._ApplyStylingArgumentsToElement(element, elementDetails.styling)
+        elementDetails.styling = nil
     end
     if elementDetails.registerClick ~= nil then
         if elementDetails.name == nil then
@@ -105,14 +104,24 @@ GuiUtil.UpdateElementFromPlayersReferenceStorage = function(playerIndex, storeNa
     if element ~= nil then
         local generatedName = GuiUtil.GenerateGuiElementName(name, type)
         if arguments.styling ~= nil then
-            for k, v in pairs(arguments.styling) do
-                element.style[k] = v
-            end
+            GuiUtil._ApplyStylingArgumentsToElement(element, arguments.styling)
             arguments.styling = nil
         end
         if arguments.registerClick ~= nil then
             GuiActionsClick.RegisterGuiForClick(name, type, arguments.registerClick.actionName, arguments.registerClick.data)
             arguments.registerClick = nil
+        end
+        if arguments.storeName ~= nil then
+            Logging.LogPrint("ERROR: GuiUtil.UpdateElementFromPlayersReferenceStorage doesn't support storeName for element name '" .. name .. "' and type '" .. type .. "'")
+            arguments.storeName = nil
+        end
+        if arguments.returnElement ~= nil then
+            Logging.LogPrint("ERROR: GuiUtil.UpdateElementFromPlayersReferenceStorage doesn't support returnElement for element name '" .. name .. "' and type '" .. type .. "'")
+            arguments.returnElement = nil
+        end
+        if arguments.children ~= nil then
+            Logging.LogPrint("ERROR: GuiUtil.UpdateElementFromPlayersReferenceStorage doesn't support children for element name '" .. name .. "' and type '" .. type .. "'")
+            arguments.children = nil
         end
         for argName, argValue in pairs(arguments) do
             if argName == "caption" or argName == "tooltip" then
@@ -121,7 +130,7 @@ GuiUtil.UpdateElementFromPlayersReferenceStorage = function(playerIndex, storeNa
             element[argName] = argValue
         end
     elseif not ignoreMissingElement then
-        Logging.LogPrint("ERROR: GuiUtil.UpdateElementFromPlayersReferenceStorage didn't find GUI element for name '" .. name .. "' and type '" .. type .. "'")
+        Logging.LogPrint("ERROR: GuiUtil.UpdateElementFromPlayersReferenceStorage didn't find a GUI element for name '" .. name .. "' and type '" .. type .. "'")
     end
     return element
 end
@@ -159,6 +168,18 @@ GuiUtil.DestroyPlayersReferenceStorage = function(playerIndex, storeName)
             end
         end
         global.GUIUtilPlayerElementReferenceStorage[playerIndex][storeName] = nil
+    end
+end
+
+GuiUtil._ApplyStylingArgumentsToElement = function(element, stylingArgs)
+    if stylingArgs.column_alignments ~= nil then
+        for k, v in pairs(stylingArgs.column_alignments) do
+            element.style.column_alignments[k] = v
+        end
+        stylingArgs.column_alignments = nil
+    end
+    for k, v in pairs(stylingArgs) do
+        element.style[k] = v
     end
 end
 

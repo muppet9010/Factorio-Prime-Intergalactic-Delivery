@@ -94,7 +94,8 @@ for _, margin in pairs({{"", 0, 0, 0, 0}, {"_marginTL", 4, 4, 0, 0}}) do
             left_padding = padding[2],
             top_padding = padding[3],
             right_padding = padding[4],
-            bottom_padding = padding[5]
+            bottom_padding = padding[5],
+            extra_padding_when_activated = 0
         }
     end
 end
@@ -102,27 +103,27 @@ end
 --TABLE
 for _, tableMargin in pairs({{"", 0, 0, 0, 0}, {"_marginTL", 4, 4, 0, 0}}) do
     for _, tablePadding in pairs({{"", 0, 0, 0, 0}, {"_paddingBR", 0, 0, 4, 4}}) do
-        for _, cellMargin in pairs({{"", 0, 0, 0, 0}, {"_cellMarginTL", 4, 4, 0, 0}}) do
-            for _, cellPadding in pairs({{"", 0, 0, 0, 0}, {"_cellMaddingBR", 0, 0, 4, 4}}) do
-                defaultStyle["muppet_table" .. tableMargin[1] .. tablePadding[1] .. cellMargin[1] .. cellPadding[1]] = {
-                    type = "table_style",
-                    left_margin = tableMargin[2],
-                    top_margin = tableMargin[3],
-                    right_margin = tableMargin[4],
-                    bottom_margin = tableMargin[5],
-                    left_padding = tablePadding[2],
-                    top_padding = tablePadding[3],
-                    right_padding = tablePadding[4],
-                    bottom_padding = tablePadding[5],
-                    left_cell_margin = cellMargin[2],
-                    top_cell_margin = cellMargin[3],
-                    right_cell_margin = cellMargin[4],
-                    bottom_cell_margin = cellMargin[5],
-                    left_cell_padding = cellPadding[2],
-                    top_cell_padding = cellPadding[3],
-                    right_cell_padding = cellPadding[4],
-                    bottom_cell_padding = cellPadding[5]
-                }
+        for _, cellPadding in pairs({{"", 0, 0, 0, 0}, {"_cellPadded", 4, 4, 4, 4}}) do
+            for _, verticalSpaced in pairs({{"", 0}, {"_verticalSpaced", 4}}) do
+                for _, horizontalSpaced in pairs({{"", 0}, {"_horizontalSpaced", 4}}) do
+                    defaultStyle["muppet_table" .. tableMargin[1] .. tablePadding[1] .. cellPadding[1] .. verticalSpaced[1] .. horizontalSpaced[1]] = {
+                        type = "table_style",
+                        left_margin = tableMargin[2],
+                        top_margin = tableMargin[3],
+                        right_margin = tableMargin[4],
+                        bottom_margin = tableMargin[5],
+                        left_padding = tablePadding[2],
+                        top_padding = tablePadding[3],
+                        right_padding = tablePadding[4],
+                        bottom_padding = tablePadding[5],
+                        left_cell_padding = cellPadding[2],
+                        top_cell_padding = cellPadding[3],
+                        right_cell_padding = cellPadding[4],
+                        bottom_cell_padding = cellPadding[5],
+                        vertical_spacing = verticalSpaced[2],
+                        horizontal_spacing = horizontalSpaced[2]
+                    }
+                end
             end
         end
     end
@@ -145,10 +146,11 @@ end
 for _, attributes in pairs(
     {
         {"", {}},
-        {"_frame", {top_margin = 4, default_graphical_set = {base = {position = {0, 0}, corner_size = 8}, shadow = {position = {440, 24}, corner_size = 8, draw_type = "outer"}}}} --top_margin is to fix the unusually high position of this setup,
+        {"_frame", {top_margin = 4, default_graphical_set = {base = {position = {0, 0}, corner_size = 8}, shadow = {position = {440, 24}, corner_size = 8, draw_type = "outer"}}}}, --top_margin is to fix the unusually high position of this setup,
+        {"_noBorder", {default_graphical_set = {}, hovered_graphical_set = {}, clicked_graphical_set = {}}}
     }
 ) do
-    for _, size in pairs({{"_mod", 36}, {"_smallText", 28}, {"_clickable", 16}, {"_32", 32}, {"_48", 48}, {"_64", 64}}) do
+    for _, size in pairs({{"", nil}, {"_mod", 36}, {"_smallText", 28}, {"_clickable", 16}, {"_32", 32}, {"_48", 48}, {"_64", 64}}) do
         local name = "muppet_sprite_button" .. attributes[1] .. size[1]
         defaultStyle[name] = {
             type = "button_style",
@@ -156,7 +158,9 @@ for _, attributes in pairs(
             height = size[2],
             margin = 0,
             padding = 0,
-            scalable = true
+            scalable = true,
+            minimal_width = 0,
+            minimal_height = 0
         }
         for k, v in pairs(attributes[2]) do
             defaultStyle[name][k] = v
@@ -164,16 +168,28 @@ for _, attributes in pairs(
     end
 end
 
-defaultStyle.muppet_small_button = {
-    type = "button_style",
-    padding = 2,
-    font = "default"
-}
-defaultStyle.muppet_large_button = {
-    type = "button_style",
-    parent = "muppet_small_button",
-    font = "default-large-bold"
-}
+--BUTTON
+for _, textSize in pairs({{"_small", "default"}, {"_medium", "default-medium"}, {"_large", "default-large"}}) do
+    for _, boldness in pairs({{"", ""}, {"_semibold", "-semibold"}, {"_bold", "-bold"}}) do
+        for _, purpose in pairs({{"_text", {255, 255, 255}}, {"_heading", Colors.guiheadingcolor}}) do
+            for _, padding in pairs({{"", 0, -2, 0, -2}, {"_paddingSides", 4, 0, 4, 0}, {"_paddingNone", -2, -6, -2, -6}, {"_paddingTight", 0, -4, 0, -4}}) do
+                defaultStyle["muppet_button" .. purpose[1] .. textSize[1] .. boldness[1] .. padding[1]] = {
+                    type = "button_style",
+                    font = textSize[2] .. boldness[2],
+                    font_color = purpose[2],
+                    single_line = false,
+                    margin = 0,
+                    left_padding = padding[2],
+                    top_padding = padding[3],
+                    right_padding = padding[4],
+                    bottom_padding = padding[5],
+                    minimal_width = 0,
+                    minimal_height = 0
+                }
+            end
+        end
+    end
+end
 
 --LABEL
 for _, textSize in pairs({{"_small", "default"}, {"_medium", "default-medium"}, {"_large", "default-large"}}) do

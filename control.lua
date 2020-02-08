@@ -10,6 +10,7 @@ local function CreateGlobals()
     global.itemDeliveryPodModActive = global.itemDeliveryPodModActive or false
     Facility.CreateGlobals()
     Shop.CreateGlobals()
+    ShopGui.CreateGlobals()
 end
 
 local function OnLoad()
@@ -37,6 +38,7 @@ script.on_init(OnStartup)
 script.on_configuration_changed(OnStartup)
 Events.RegisterEvent(defines.events.on_runtime_mod_setting_changed)
 script.on_load(OnLoad)
+Events.RegisterEvent(defines.events.on_player_left_game)
 
 GuiActionsClick.MonitorGuiClickActions()
 EventScheduler.RegisterScheduler()

@@ -27,6 +27,7 @@ end
 
 Shop.OnLoad = function()
     Events.RegisterHandler(defines.events.on_runtime_mod_setting_changed, "Shop.OnSettingChanged", Shop.OnSettingChanged)
+    Interfaces.RegisterInterface("Shop.BuyBasketItems", Shop.BuyBasketItems)
 end
 
 Shop.OnStartup = function()
@@ -106,6 +107,26 @@ Shop.UpdateItems = function()
             global.shop.softwareLevelCostMultiplier = global.shop.softwareLevelCostMultiplier or 1
             global.shop.softwareLevelEffectBonus = global.shop.softwareLevelEffectBonus or 1
         end
+    end
+
+    Interfaces.Call("ShopGui.RecreateGui")
+end
+
+Shop.BuyBasketItems = function()
+    if global.itemDeliveryPodModActive then
+        game.print("TODO: deliver items via the Item Delivery Pod mod")
+    else
+        --TODO: this cost is temporary until software is added, make sure taht money is still present to let things be brought in future.
+        local cost = 0
+        for itemName, quantity in pairs(global.shopGui.shoppingBasket) do
+            local itemDetails = global.shop.items[itemName]
+            local inserted = global.facility.deliveryChest.insert({name = itemDetails.item, count = quantity})
+            cost = cost + (quantity * itemDetails.price)
+            if inserted < quantity then
+                global.facility.surface.spill_item_stack(global.facility.deliveryChest.position, {name = itemDetails.item, count = quantity - inserted})
+            end
+        end
+        global.facility.paymentChest.remove_item({name = "coin", count = cost})
     end
 end
 
