@@ -113,7 +113,7 @@ Shop.UpdateItems = function()
 end
 
 Shop.BuyBasketItems = function()
-    if global.itemDeliveryPodModActive then
+    if global.itemDeliveryPod.modActive then
         game.print("TODO: deliver items via the Item Delivery Pod mod")
     else
         --TODO: this cost is temporary until software is added, make sure taht money is still present to let things be brought in future.

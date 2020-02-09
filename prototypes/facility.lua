@@ -6,6 +6,18 @@ local shopPaymentChest = Utils.DeepCopy(data.raw["logistic-container"]["logistic
 shopPaymentChest.name = "prime_intergalactic_delivery-shop_payment_chest"
 shopPaymentChest.flags = {"placeable-off-grid", "not-blueprintable", "not-deconstructable"}
 shopPaymentChest.minable = nil
+shopPaymentChest.inventory_size = settings.startup["prime_intergalactic_delivery-payment_chest_inventory_size"].value
+table.insert(
+    shopPaymentChest.animation.layers,
+    {
+        filename = Constants.AssetModName .. "/graphics/entity/coin_animation.png",
+        priority = "extra-high",
+        size = 64,
+        frame_count = 7,
+        scale = 0.13,
+        shift = {0, 0.1}
+    }
+)
 shopPaymentChest.render_not_in_network_icon = false
 shopPaymentChest.order = "9999"
 

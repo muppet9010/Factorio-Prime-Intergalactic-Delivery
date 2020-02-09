@@ -5,9 +5,10 @@ local GuiActionsOpened = require("utility/gui-actions-opened")
 local EventScheduler = require("utility/event-scheduler")
 local ShopGui = require("scripts/shop-gui")
 local Shop = require("scripts/shop")
+local ItemDeliveryPod = require("scripts/item-delivery-pod")
 
 local function CreateGlobals()
-    global.itemDeliveryPodModActive = global.itemDeliveryPodModActive or false
+    ItemDeliveryPod.CreateGlobals()
     Facility.CreateGlobals()
     Shop.CreateGlobals()
     ShopGui.CreateGlobals()
@@ -15,6 +16,7 @@ end
 
 local function OnLoad()
     --Any Remote Interface registration calls can go in here or in root of control.lua
+    ItemDeliveryPod.OnLoad()
     Facility.OnLoad()
     Shop.OnLoad()
     ShopGui.OnLoad()
@@ -23,13 +25,9 @@ end
 local function OnStartup()
     CreateGlobals()
     OnLoad()
-    Events.RaiseEvent({name = defines.events.on_runtime_mod_setting_changed})
+    Events._HandleEvent({name = defines.events.on_runtime_mod_setting_changed})
 
-    if game.active_mods["item_delivery_pod"] ~= nil then
-        global.itemDeliveryPodModActive = true
-    else
-        global.itemDeliveryPodModActive = false
-    end
+    ItemDeliveryPod.OnStartup()
     Facility.OnStartup()
     Shop.OnStartup()
 end

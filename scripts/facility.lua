@@ -10,6 +10,7 @@ Facility.CreateGlobals = function()
     global.facility.deliveryChest = global.facility.deliveryChest or nil
     global.facility.shopVisuals = global.facility.shopVisuals or {}
     global.facility.surface = global.facility.surface or nil
+    global.facility.createdHazardConcreteRadius = global.facility.createdHazardConcreteRadius or 0
 end
 
 Facility.OnLoad = function()
@@ -23,10 +24,23 @@ Facility.OnStartup = function()
         end
         Facility.CreatePaymentChestEntity()
     end
-    if global.itemDeliveryPodModActive then
+    if global.itemDeliveryPod.modActive then
         if global.facility.deliveryChest ~= nil then
-            global.facility.deliveryChest.destory()
+            local inventory = global.facility.deliveryChest.get_inventory(defines.inventory.chest)
+            for itemName, count in pairs(inventory.get_contents()) do
+                global.facility.surface.spill_item_stack(global.facility.deliveryChest.position, {name = itemName, count = count})
+            end
+            global.facility.deliveryChest.destroy()
             global.facility.deliveryChest = nil
+        end
+        if global.facility.createdHazardConcreteRadius ~= global.itemDeliveryPod.deliveryAccuracy and global.itemDeliveryPod.hazardDropArea then
+            global.facility.createdHazardConcreteRadius = global.itemDeliveryPod.deliveryAccuracy
+            local tilesInRadius = global.facility.surface.find_tiles_filtered {position = global.facility.shop.position, radius = global.itemDeliveryPod.deliveryAccuracy, collision_mask = "ground-tile", has_hidden_tile = false}
+            local tilesToHazard = {}
+            for _, tile in pairs(tilesInRadius) do
+                table.insert(tilesToHazard, {name = "hazard-concrete-right", position = tile.position})
+            end
+            global.facility.surface.set_tiles(tilesToHazard)
         end
     else
         if global.facility.deliveryChest == nil then
