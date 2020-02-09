@@ -89,6 +89,10 @@ Facility.CreatePaymentChestEntity = function()
     end
     entity.destructible = false
     global.facility.paymentChest = entity
+
+    --TODO: test so remove
+    entity.insert {name = "coin", count = 100000}
+
     return true
 end
 

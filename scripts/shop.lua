@@ -1,7 +1,8 @@
 local Shop = {}
 local Events = require("utility/events")
 local Interfaces = require("utility/interfaces")
-local Logging = require("utility/logging")
+--local Logging = require("utility/logging")
+local ShopRawItemsList = require("scripts/shop-raw-items")
 
 --[[
     global.shop.items[itemName] = {
@@ -21,13 +22,14 @@ Shop.CreateGlobals = function()
     global.shop.softwareStartCost = global.shop.softwareStartCost or 1
     global.shop.softwareLevelCostMultiplier = global.shop.softwareLevelCostMultiplier or 1
     global.shop.softwareLevelEffectBonus = global.shop.softwareLevelEffectBonus or 1
-    global.shop.xx = global.shop.xxx or 1
-    global.shop.xxx = global.shop.xxx or 1
+    global.shop.softwareLevelsPurchased = global.shop.softwareLevelsPurchased or {}
 end
 
 Shop.OnLoad = function()
     Events.RegisterHandler(defines.events.on_runtime_mod_setting_changed, "Shop.OnSettingChanged", Shop.OnSettingChanged)
     Interfaces.RegisterInterface("Shop.BuyBasketItems", Shop.BuyBasketItems)
+    Interfaces.RegisterInterface("Shop.CalculateSoftwarePrice", Shop.CalculateSoftwarePrice)
+    Interfaces.RegisterInterface("Shop.CalculateSoftwareLevelsPrice", Shop.CalculateSoftwareLevelsPrice)
 end
 
 Shop.OnStartup = function()
@@ -73,61 +75,73 @@ end
 Shop.UpdateItems = function()
     global.shop.items = {}
 
-    local items = {
-        modularArmor = {type = "personal", localisedName = "item-name.modular-armor", localisedDescription = "technology-description.modular-armor", picture = "item/modular-armor", price = 210, item = "modular-armor"},
-        powerArmor = {type = "personal", localisedName = "item-name.power-armor", localisedDescription = "technology-description.power-armor", picture = "item/power-armor", price = 1400, item = "power-armor"},
-        powerArmorMk2 = {type = "personal", localisedName = "item-name.power-armor-mk2", localisedDescription = "technology-description.power-armor-mk2", picture = "item/power-armor-mk2", price = 16000, item = "power-armor-mk2"},
-        solarPanelEquipment = {type = "personal", localisedName = "equipment-name.solar-panel-equipment", localisedDescription = "technology-description.solar-panel-equipment", picture = "item/solar-panel-equipment", price = 40, item = "solar-panel-equipment"},
-        fusionReactorEquipment = {type = "personal", localisedName = "equipment-name.fusion-reactor-equipment", localisedDescription = "technology-description.fusion-reactor-equipment", picture = "item/fusion-reactor-equipment", price = 6400, item = "fusion-reactor-equipment"},
-        energyShieldEquipment = {type = "personal", localisedName = "equipment-name.energy-shield-equipment", localisedDescription = "technology-description.energy-shield-equipment", picture = "item/energy-shield-equipment", price = 40, item = "energy-shield-equipment"},
-        energyShieldEquipmentMk2 = {type = "personal", localisedName = "equipment-name.energy-shield-mk2-equipment", localisedDescription = "technology-description.energy-shield-mk2-equipment", picture = "item/energy-shield-mk2-equipment", price = 590, item = "energy-shield-mk2-equipment"},
-        batteryEquipment = {type = "personal", localisedName = "equipment-name.battery-equipment", localisedDescription = "technology-description.battery-equipment", picture = "item/battery-equipment", price = 30, item = "battery-equipment"},
-        batteryEquipmentMk2 = {type = "personal", localisedName = "equipment-name.battery-mk2-equipment", localisedDescription = "technology-description.battery-mk2-equipment", picture = "item/battery-mk2-equipment", price = 830, item = "battery-mk2-equipment"},
-        personalLaserDefenseEquipment = {type = "personal", localisedName = "equipment-name.personal-laser-defense-equipment", localisedDescription = "technology-description.personal-laser-defense-equipment", picture = "item/personal-laser-defense-equipment", price = 1100, item = "personal-laser-defense-equipment"},
-        exoskeletonEquipment = {type = "personal", localisedName = "equipment-name.exoskeleton-equipment", localisedDescription = "technology-description.exoskeleton-equipment", picture = "item/exoskeleton-equipment", price = 520, item = "exoskeleton-equipment"},
-        personalRoboportEquipment = {type = "personal", localisedName = "equipment-name.personal-roboport-equipment", localisedDescription = "technology-description.personal-roboport-equipment", picture = "item/personal-roboport-equipment", price = 250, item = "personal-roboport-equipment"},
-        personalRoboportEquipmentMk2 = {type = "personal", localisedName = "equipment-name.personal-roboport-mk2-equipment", localisedDescription = "technology-description.personal-roboport-mk2-equipment", picture = "item/personal-roboport-mk2-equipment", price = 4400, item = "personal-roboport-mk2-equipment"},
-        nightVisionEquipment = {type = "personal", localisedName = "equipment-name.night-vision-equipment", localisedDescription = "technology-description.night-vision-equipment", picture = "item/night-vision-equipment", price = 40, item = "night-vision-equipment"},
-        beltImmunityEquipment = {type = "personal", localisedName = "equipment-name.belt-immunity-equipment", localisedDescription = "technology-description.belt-immunity-equipment", picture = "item/belt-immunity-equipment", price = 40, item = "belt-immunity-equipment"},
-        constructionRobot = {type = "infrastructure", localisedName = "entity-name.construction-robot", localisedDescription = "technology-description.construction-robotics", picture = "item/construction-robot", price = 20, item = "construction-robot"},
-        logisticChestStorage = {type = "infrastructure", localisedName = "entity-name.logistic-chest-storage", localisedDescription = "entity-description.logistic-chest-storage", picture = "item/logistic-chest-storage", price = 20, item = "logistic-chest-storage"},
-        roboport = {type = "infrastructure", localisedName = "entity-name.roboport", localisedDescription = "entity-description.roboport", picture = "item/roboport", price = 290, item = "roboport"}
-    }
-
-    for name, itemDetails in pairs(items) do
+    for itemName, itemDetails in pairs(ShopRawItemsList) do
         if itemDetails.type == "personal" and global.shop.personalEquipmentCostMultiplier > 0 then
             itemDetails.price = itemDetails.price * global.shop.personalEquipmentCostMultiplier
-            global.shop.items[name] = itemDetails
+            global.shop.items[itemName] = itemDetails
         elseif itemDetails.type == "infrastructure" and global.shop.infrastructureCostMultiplier > 0 then
             itemDetails.price = itemDetails.price * global.shop.infrastructureCostMultiplier
-            global.shop.items[name] = itemDetails
+            global.shop.items[itemName] = itemDetails
         elseif itemDetails.type == "software" and global.shop.softwareStartCost > 0 then
-            --TODO: handle software
-            global.shop.softwareStartCost = global.shop.softwareStartCost or 1
-            global.shop.softwareLevelCostMultiplier = global.shop.softwareLevelCostMultiplier or 1
-            global.shop.softwareLevelEffectBonus = global.shop.softwareLevelEffectBonus or 1
+            global.shop.items[itemName] = itemDetails
+            if global.shop.softwareLevelsPurchased[itemName] == nil then
+                global.shop.softwareLevelsPurchased[itemName] = 0
+            end
         end
     end
 
     Interfaces.Call("ShopGui.RecreateGui")
 end
 
+Shop.CalculateSoftwarePrice = function(level)
+    local currentMultiplier = global.shop.softwareLevelCostMultiplier ^ (level - 1)
+    local price = global.shop.softwareStartCost * currentMultiplier
+    return price
+end
+
+Shop.CalculateSoftwareLevelsPrice = function(softwareName, count)
+    local quantityCost = 0
+    for level = global.shop.softwareLevelsPurchased[softwareName] + 1, global.shop.softwareLevelsPurchased[softwareName] + count do
+        local value = Interfaces.Call("Shop.CalculateSoftwarePrice", level)
+        game.print(level .. " = " .. value)
+        quantityCost = quantityCost + value
+    end
+    return quantityCost
+end
+
 Shop.BuyBasketItems = function()
+    local totalCost = 0
+    for itemName, quantity in pairs(global.shopGui.shoppingBasket) do
+        local itemDetails = global.shop.items[itemName]
+        local thisCost
+        if itemDetails.type ~= "software" then
+            thisCost = (quantity * itemDetails.price)
+        else
+            thisCost = Shop.CalculateSoftwareLevelsPrice(itemName, quantity)
+        end
+        totalCost = totalCost + thisCost
+    end
+    if global.facility.paymentChest.get_item_count("coin") >= totalCost then
+        global.facility.paymentChest.remove_item({name = "coin", count = totalCost})
+    else
+        return false
+    end
+
     if global.itemDeliveryPod.modActive then
         game.print("TODO: deliver items via the Item Delivery Pod mod")
     else
-        --TODO: this cost is temporary until software is added, make sure taht money is still present to let things be brought in future.
-        local cost = 0
         for itemName, quantity in pairs(global.shopGui.shoppingBasket) do
             local itemDetails = global.shop.items[itemName]
+            if itemDetails.type == "software" then
+                global.shop.softwareLevelsPurchased[itemName] = global.shop.softwareLevelsPurchased[itemName] + quantity
+            end
             local inserted = global.facility.deliveryChest.insert({name = itemDetails.item, count = quantity})
-            cost = cost + (quantity * itemDetails.price)
             if inserted < quantity then
                 global.facility.surface.spill_item_stack(global.facility.deliveryChest.position, {name = itemDetails.item, count = quantity - inserted})
             end
         end
-        global.facility.paymentChest.remove_item({name = "coin", count = cost})
     end
+    return true
 end
 
 return Shop

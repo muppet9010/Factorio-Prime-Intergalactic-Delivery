@@ -16,6 +16,7 @@ ShopGui.CreateGlobals = function()
     global.shopGui.guiOpenPlayerText = global.shopGui.guiOpenPlayerText or nil
     global.shopGui.guiOpenShopText = global.shopGui.guiOpenShopText or nil
     global.shopGui.shoppingBasket = global.shopGui.shoppingBasket or {}
+    global.shopGui.currentSoftwareLevelOffered = global.shopGui.currentSoftwareLevelOffered or {}
 end
 
 ShopGui.OnLoad = function()
@@ -28,7 +29,7 @@ ShopGui.OnLoad = function()
     GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.BuyBasketAction", ShopGui.BuyBasketAction)
     GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.EmptyBasketAction", ShopGui.EmptyBasketAction)
     Interfaces.RegisterInterface("ShopGui.RecreateGui", ShopGui.RecreateGui)
-    GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.ChangeBasketQuantity", ShopGui.ChangeBasketQuantity)
+    GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.ChangeBasketQuantityAction", ShopGui.ChangeBasketQuantityAction)
     Events.RegisterHandler(defines.events.on_player_died, "ShopGui.OnPlayerDied", ShopGui.OnPlayerDied)
 end
 
@@ -83,6 +84,14 @@ ShopGui.PlayerOpeningGui = function(player)
     global.shopGui.guiOpenPlayerIndex = player.index
     global.shopGui.guiOpenPlayerText = rendering.draw_text {text = {"rendering-text.prime_intergalactic_delivery-player_in_shop_gui"}, surface = global.facility.surface, target = player.character, color = Colors.white}
     global.shopGui.guiOpenShopText = rendering.draw_text {text = {"rendering-text.prime_intergalactic_delivery-shop_gui_in_use"}, surface = global.facility.surface, target = global.facility.shop, color = Colors.white}
+
+    if Utils.GetTableNonNilLength(global.shopGui.currentSoftwareLevelOffered) == 0 then
+        for itemName, itemDetails in pairs(global.shop.items) do
+            if itemDetails.type == "software" then
+                global.shopGui.currentSoftwareLevelOffered[itemName] = global.shop.softwareLevelsPurchased[itemName] + 1
+            end
+        end
+    end
 
     ShopGui.CreateGuiStructure(player)
     ShopGui.PopulateItemsList(player.index)
@@ -386,6 +395,13 @@ ShopGui.PopulateItemsList = function(playerIndex)
     local itemListTable = GuiUtil.GetElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemList", "table")
     itemListTable.clear()
     for itemName, itemDetails in pairs(global.shop.items) do
+        local priceValue
+        if itemDetails.type ~= "software" then
+            priceValue = itemDetails.price
+        else
+            local offeredLevel = global.shopGui.currentSoftwareLevelOffered[itemName]
+            priceValue = Interfaces.Call("Shop.CalculateSoftwarePrice", offeredLevel)
+        end
         GuiUtil.AddElement(
             {
                 parent = itemListTable,
@@ -414,7 +430,7 @@ ShopGui.PopulateItemsList = function(playerIndex)
                                 name = "guiShopItemList" .. itemName,
                                 type = "label",
                                 style = "muppet_label_text_small_bold",
-                                caption = Utils.DisplayNumberPretty(itemDetails.price) .. coinIconText,
+                                caption = Utils.DisplayNumberPretty(priceValue) .. coinIconText,
                                 registerClick = {actionName = "ShopGui.SelectItemInListAction", data = {itemName = itemName}}
                             }
                         }
@@ -426,13 +442,25 @@ ShopGui.PopulateItemsList = function(playerIndex)
 end
 
 ShopGui.SelectItemInListAction = function(actionData)
-    local playerIndex, itemName = actionData.playerIndex, actionData.data.itemName
-    local itemDetails = global.shop.items[itemName]
+    ShopGui.UpdateSelectedItemDetails(actionData.playerIndex, actionData.data.itemName)
+end
 
-    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemDetailsTitle", "label", {caption = {itemDetails.localisedName}})
+ShopGui.UpdateSelectedItemDetails = function(playerIndex, itemName)
+    local itemDetails = global.shop.items[itemName]
+    local titleCaption, priceValue
+    if itemDetails.type ~= "software" then
+        titleCaption = {itemDetails.localisedName}
+        priceValue = itemDetails.price
+    else
+        local offeredLevel = global.shopGui.currentSoftwareLevelOffered[itemName]
+        titleCaption = {"gui-caption.prime_intergalactic_delivery-shopGuiItemDetailsTitleSoftware", {itemDetails.localisedName}, offeredLevel}
+        priceValue = Interfaces.Call("Shop.CalculateSoftwarePrice", offeredLevel)
+    end
+
+    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemDetailsTitle", "label", {caption = titleCaption})
     GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemDetailsImage", "sprite", {sprite = itemDetails.picture})
     GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemsDetailsDescription", "label", {caption = {itemDetails.localisedDescription}})
-    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemDetailsPrice", "label", {caption = Utils.DisplayNumberPretty(itemDetails.price) .. coinIconText})
+    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemDetailsPrice", "label", {caption = Utils.DisplayNumberPretty(priceValue) .. coinIconText})
     GuiUtil.UpdateElementFromPlayersReferenceStorage(
         playerIndex,
         "ShopGui",
@@ -446,17 +474,15 @@ ShopGui.SelectItemInListAction = function(actionData)
 end
 
 ShopGui.AddToShoppingBasketAction = function(actionData)
-    local itemName = actionData.data.itemName
-    global.shopGui.shoppingBasket[itemName] = (global.shopGui.shoppingBasket[itemName] or 0) + 1
-    ShopGui.UpdateShoppingBasket(actionData.playerIndex)
+    ShopGui.ChangeBasketQuantity(actionData.playerIndex, actionData.data.itemName, 1)
 end
 
 ShopGui.UpdateShoppingBasket = function(playerIndex)
     local shoppingBasketList = GuiUtil.GetElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiBasketList", "table")
     shoppingBasketList.clear()
     GuiUtil.AddElement({parent = shoppingBasketList, type = "label", style = "muppet_label_heading_small_bold", caption = {"gui-caption.prime_intergalactic_delivery-shopGuiBasketItemNameHeading"}, styling = {horizontally_stretchable = true}})
-    GuiUtil.AddElement({parent = shoppingBasketList, type = "label", style = "muppet_label_heading_small_bold", caption = {"gui-caption.prime_intergalactic_delivery-shopGuiBasketItemQuantityHeading"}})
-    GuiUtil.AddElement({parent = shoppingBasketList, type = "label", style = "muppet_label_heading_small_bold", caption = {"gui-caption.prime_intergalactic_delivery-shopGuiBasketItemPriceHeading"}, styling = {left_margin = 4}})
+    GuiUtil.AddElement({parent = shoppingBasketList, type = "label", style = "muppet_label_heading_small_bold", caption = {"gui-caption.prime_intergalactic_delivery-shopGuiBasketItemQuantityHeading"}, styling = {width = 55}})
+    GuiUtil.AddElement({parent = shoppingBasketList, type = "label", style = "muppet_label_heading_small_bold", caption = {"gui-caption.prime_intergalactic_delivery-shopGuiBasketItemPriceHeading"}, styling = {width = 80}})
 
     local totalCostValue = 0
     for itemName, itemQuantity in pairs(global.shopGui.shoppingBasket) do
@@ -464,8 +490,14 @@ ShopGui.UpdateShoppingBasket = function(playerIndex)
         if itemDetails == nil then
             global.shop.items[itemName] = nil
         else
-            local itemQuantityCost = (itemDetails.price * itemQuantity)
+            local itemQuantityCost
+            if itemDetails.type ~= "software" then
+                itemQuantityCost = (itemDetails.price * itemQuantity)
+            else
+                itemQuantityCost = Interfaces.Call("Shop.CalculateSoftwareLevelsPrice", itemName, itemQuantity)
+            end
             totalCostValue = totalCostValue + itemQuantityCost
+
             GuiUtil.AddElement(
                 {
                     parent = shoppingBasketList,
@@ -495,7 +527,7 @@ ShopGui.UpdateShoppingBasket = function(playerIndex)
                                     clicked_sprite = "prime_intergalactic_delivery-basket_up_arrow_hovered",
                                     style = "muppet_sprite_button_noBorder",
                                     styling = {width = 14, height = 7},
-                                    registerClick = {actionName = "ShopGui.ChangeBasketQuantity", data = {itemName = itemName, change = 1}}
+                                    registerClick = {actionName = "ShopGui.ChangeBasketQuantityAction", data = {itemName = itemName, change = 1}}
                                 },
                                 {
                                     name = "shopGuiBasketItemQuantityDecrease" .. itemName,
@@ -505,7 +537,7 @@ ShopGui.UpdateShoppingBasket = function(playerIndex)
                                     clicked_sprite = "prime_intergalactic_delivery-basket_down_arrow_hovered",
                                     style = "muppet_sprite_button_noBorder",
                                     styling = {width = 14, height = 7},
-                                    registerClick = {actionName = "ShopGui.ChangeBasketQuantity", data = {itemName = itemName, change = -1}}
+                                    registerClick = {actionName = "ShopGui.ChangeBasketQuantityAction", data = {itemName = itemName, change = -1}}
                                 }
                             }
                         },
@@ -554,9 +586,12 @@ ShopGui.UpdateShoppingBasket = function(playerIndex)
     GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiBasketAvailableValue", "label", {caption = Utils.DisplayNumberPretty(availableValue) .. coinIconText, styling = {font_color = availableValueColor}})
 end
 
-ShopGui.ChangeBasketQuantity = function(actionData)
-    local itemName, change = actionData.data.itemName, actionData.data.change
-    local value = global.shopGui.shoppingBasket[itemName] + change
+ShopGui.ChangeBasketQuantityAction = function(actionData)
+    ShopGui.ChangeBasketQuantity(actionData.playerIndex, actionData.data.itemName, actionData.data.change)
+end
+
+ShopGui.ChangeBasketQuantity = function(playerIndex, itemName, change)
+    local value = (global.shopGui.shoppingBasket[itemName] or 0) + change
     if value < 0 then
         value = 0
     end
@@ -565,17 +600,30 @@ ShopGui.ChangeBasketQuantity = function(actionData)
     else
         global.shopGui.shoppingBasket[itemName] = nil
     end
-    ShopGui.UpdateShoppingBasket(actionData.playerIndex)
+
+    local itemDetails = global.shop.items[itemName]
+    if itemDetails.type == "software" then
+        global.shopGui.currentSoftwareLevelOffered[itemName] = global.shopGui.currentSoftwareLevelOffered[itemName] + change
+        ShopGui.UpdateSelectedItemDetails(playerIndex, itemName)
+        ShopGui.PopulateItemsList(playerIndex)
+    end
+
+    ShopGui.UpdateShoppingBasket(playerIndex)
 end
 
 ShopGui.BuyBasketAction = function(actionData)
-    Interfaces.Call("Shop.BuyBasketItems")
-    ShopGui.EmptyBasketAction(actionData)
-    ShopGui.CloseGui(actionData.playerIndex)
+    local purchaseComplete = Interfaces.Call("Shop.BuyBasketItems")
+    if purchaseComplete then
+        ShopGui.EmptyBasketAction(actionData)
+        ShopGui.CloseGui(actionData.playerIndex)
+    else
+        game.print("ERROR: purchase filed to go through, um........")
+    end
 end
 
 ShopGui.EmptyBasketAction = function(actionData)
     global.shopGui.shoppingBasket = {}
+    global.shopGui.currentSoftwareLevelOffered = {}
     ShopGui.UpdateShoppingBasket(actionData.playerIndex)
 end
 

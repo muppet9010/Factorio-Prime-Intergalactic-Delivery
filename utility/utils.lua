@@ -557,6 +557,9 @@ function Utils.PadNumberToMinimumDigits(input, requiredLength)
 end
 
 function Utils.DisplayNumberPretty(number)
+    if number == nil then
+        return ""
+    end
     local formatted = number
     local k
     while true do
