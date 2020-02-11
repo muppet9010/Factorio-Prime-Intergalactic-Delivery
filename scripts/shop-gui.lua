@@ -7,6 +7,7 @@ local Events = require("utility/events")
 local Colors = require("utility/colors")
 --local Logging = require("utility/logging")
 local Utils = require("utility/utils")
+local Commands = require("utility/commands")
 
 local coinIconText = " [img=item/coin]"
 
@@ -17,6 +18,8 @@ ShopGui.CreateGlobals = function()
     global.shopGui.guiOpenShopText = global.shopGui.guiOpenShopText or nil
     global.shopGui.shoppingBasket = global.shopGui.shoppingBasket or {}
     global.shopGui.currentSoftwareLevelOffered = global.shopGui.currentSoftwareLevelOffered or {}
+    global.shopGui.currentPurchaseId = global.shopGui.currentPurchaseId or math.random(117, 462)
+    global.shopGui.ordersMade = global.shopGui.ordersMade or {}
 end
 
 ShopGui.OnLoad = function()
@@ -31,6 +34,7 @@ ShopGui.OnLoad = function()
     Interfaces.RegisterInterface("ShopGui.RecreateGui", ShopGui.RecreateGui)
     GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.ChangeBasketQuantityAction", ShopGui.ChangeBasketQuantityAction)
     Events.RegisterHandler(defines.events.on_player_died, "ShopGui.OnPlayerDied", ShopGui.OnPlayerDied)
+    Commands.Register("prime_intergalactic_delivery_export_orders", {"api-description.prime_intergalactic_delivery_export_orders"}, ShopGui.ExportOrders, false)
 end
 
 ShopGui.RegisterMarketForOpened = function(marketEntity)
@@ -52,7 +56,9 @@ end
 
 ShopGui.CloseGui = function(playerIndex)
     global.shopGui.guiOpenPlayerIndex = nil
-    rendering.destroy(global.shopGui.guiOpenPlayerText)
+    if global.shopGui.guiOpenPlayerText ~= nil then
+        rendering.destroy(global.shopGui.guiOpenPlayerText)
+    end
     rendering.destroy(global.shopGui.guiOpenShopText)
     GuiUtil.DestroyElementInPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiMain", "frame")
 end
@@ -82,8 +88,10 @@ end
 
 ShopGui.PlayerOpeningGui = function(player)
     global.shopGui.guiOpenPlayerIndex = player.index
-    global.shopGui.guiOpenPlayerText = rendering.draw_text {text = {"rendering-text.prime_intergalactic_delivery-player_in_shop_gui"}, surface = global.facility.surface, target = player.character, color = Colors.white}
-    global.shopGui.guiOpenShopText = rendering.draw_text {text = {"rendering-text.prime_intergalactic_delivery-shop_gui_in_use"}, surface = global.facility.surface, target = global.facility.shop, color = Colors.white}
+    if player.character ~= nil then
+        global.shopGui.guiOpenPlayerText = rendering.draw_text {text = {"rendering-text.prime_intergalactic_delivery-player_in_shop_gui"}, surface = global.facility.surface, target = player.character, color = Colors.white, alignment = "center"}
+    end
+    global.shopGui.guiOpenShopText = rendering.draw_text {text = {"rendering-text.prime_intergalactic_delivery-shop_gui_in_use"}, surface = global.facility.surface, target = global.facility.shop, color = Colors.white, alignment = "center"}
 
     if Utils.GetTableNonNilLength(global.shopGui.currentSoftwareLevelOffered) == 0 then
         for itemName, itemDetails in pairs(global.shop.items) do
@@ -355,7 +363,14 @@ ShopGui.CreateGuiStructure = function(player)
                                                             name = "shopGuiBasketDeliveryEta",
                                                             type = "label",
                                                             style = "muppet_label_text_small",
-                                                            caption = {"self", "1 day"}, -- TODO: replace this with the delivery time setting nice print.
+                                                            caption = {"self", ShopGui.GetDeliveryEtaLocalisedString()},
+                                                            styling = {vertical_align = "center"}
+                                                        },
+                                                        {
+                                                            name = "shopGuiBasketOrderId",
+                                                            type = "label",
+                                                            style = "muppet_label_text_small",
+                                                            caption = {"self", global.shopGui.currentPurchaseId},
                                                             styling = {vertical_align = "center"}
                                                         },
                                                         {
@@ -614,6 +629,9 @@ end
 ShopGui.BuyBasketAction = function(actionData)
     local purchaseComplete = Interfaces.Call("Shop.BuyBasketItems")
     if purchaseComplete then
+        local player = game.get_player(actionData.playerIndex)
+        table.insert(global.shopGui.ordersMade, {orderId = global.shopGui.currentPurchaseId, tick = game.tick, playerName = player.name, items = Utils.DeepCopy(global.shopGui.shoppingBasket)})
+        global.shopGui.currentPurchaseId = global.shopGui.currentPurchaseId + 1
         ShopGui.EmptyBasketAction(actionData)
         ShopGui.CloseGui(actionData.playerIndex)
     else
@@ -625,6 +643,24 @@ ShopGui.EmptyBasketAction = function(actionData)
     global.shopGui.shoppingBasket = {}
     global.shopGui.currentSoftwareLevelOffered = {}
     ShopGui.UpdateShoppingBasket(actionData.playerIndex)
+end
+
+ShopGui.GetDeliveryEtaLocalisedString = function()
+    local deliveryMin, deliveryMax = global.shop.deliveryDelayMinTicks / 3600, global.shop.deliveryDelayMaxTicks / 3600
+    if deliveryMin == deliveryMax then
+        local deliveryMinRounded = Utils.RoundNumberToDecimalPlaces(deliveryMin, 0)
+        if deliveryMinRounded == 0 then
+            return {"gui-caption.prime_intergalactic_delivery-shopGuiBasketDeliveryEtaInstant"}
+        else
+            return {"gui-caption.prime_intergalactic_delivery-shopGuiBasketDeliveryEtaExactMinutes", Utils.RoundNumberToDecimalPlaces(deliveryMin, 0)}
+        end
+    else
+        return {"gui-caption.prime_intergalactic_delivery-shopGuiBasketDeliveryEtaRangeMinutes", Utils.RoundNumberToDecimalPlaces(deliveryMin, 0), Utils.RoundNumberToDecimalPlaces(deliveryMax, 0)}
+    end
+end
+
+ShopGui.ExportOrders = function(commandData)
+    game.write_file("Prime_Intergalactic_Delivery_Orders.txt", Utils.TableContentsToJSON(global.shopGui.ordersMade), false, commandData.player_index)
 end
 
 return ShopGui

@@ -3,6 +3,8 @@ local Events = require("utility/events")
 local Interfaces = require("utility/interfaces")
 --local Logging = require("utility/logging")
 local ShopRawItemsList = require("scripts/shop-raw-items")
+local EventScheduler = require("utility/event-scheduler")
+local Utils = require("utility/utils")
 
 --[[
     global.shop.items[itemName] = {
@@ -23,6 +25,8 @@ Shop.CreateGlobals = function()
     global.shop.softwareLevelCostMultiplier = global.shop.softwareLevelCostMultiplier or 1
     global.shop.softwareLevelEffectBonus = global.shop.softwareLevelEffectBonus or 1
     global.shop.softwareLevelsPurchased = global.shop.softwareLevelsPurchased or {}
+    global.shop.deliveryDelayMinTicks = global.shop.deliveryDelayMinTicks or 0
+    global.shop.deliveryDelayMaxTicks = global.shop.deliveryDelayMaxTicks or 0
 end
 
 Shop.OnLoad = function()
@@ -30,6 +34,7 @@ Shop.OnLoad = function()
     Interfaces.RegisterInterface("Shop.BuyBasketItems", Shop.BuyBasketItems)
     Interfaces.RegisterInterface("Shop.CalculateSoftwarePrice", Shop.CalculateSoftwarePrice)
     Interfaces.RegisterInterface("Shop.CalculateSoftwareLevelsPrice", Shop.CalculateSoftwareLevelsPrice)
+    EventScheduler.RegisterScheduledEventType("Shop.ItemDeliveryScheduledEvent", Shop.ItemDeliveryScheduledEvent)
 end
 
 Shop.OnStartup = function()
@@ -59,14 +64,18 @@ Shop.OnSettingChanged = function(event)
         global.shop.softwareLevelEffectBonus = tonumber(settings.global["prime_intergalactic_delivery-shop_software_effect_level_bonus_percent"].value)
         updateItems = true
     end
-    --[[if settingName == nil or settingName == "prime_intergalactic_delivery-xxx" then
-        global.shop.xxxxxx = tonumber(settings.global["prime_intergalactic_delivery-xxx"].value)
-        updateItems = true
+    if settingName == nil or settingName == "prime_intergalactic_delivery-delivery_min_delay" then
+        global.shop.deliveryDelayMinTicks = tonumber(settings.global["prime_intergalactic_delivery-delivery_min_delay"].value) * 60
     end
+    if settingName == nil or settingName == "prime_intergalactic_delivery-delivery_max_delay" then
+        global.shop.deliveryDelayMaxTicks = tonumber(settings.global["prime_intergalactic_delivery-delivery_max_delay"].value) * 60
+    end
+    --[[
     if settingName == nil or settingName == "prime_intergalactic_delivery-xxx" then
         global.shop.xxxxxx = tonumber(settings.global["prime_intergalactic_delivery-xxx"].value)
         updateItems = true
-    end]]
+    end
+    ]]
     if updateItems then
         Shop.UpdateItems()
     end
@@ -127,21 +136,37 @@ Shop.BuyBasketItems = function()
         return false
     end
 
+    for itemName, quantity in pairs(global.shopGui.shoppingBasket) do
+        local itemDetails = global.shop.items[itemName]
+        if itemDetails.type == "software" then
+            global.shop.softwareLevelsPurchased[itemName] = global.shop.softwareLevelsPurchased[itemName] + quantity
+        end
+    end
+
+    local itemsPurchased = Utils.DeepCopy(global.shopGui.shoppingBasket)
+    local deliverTick = game.tick + math.random(global.shop.deliveryDelayMinTicks, global.shop.deliveryDelayMaxTicks)
+    EventScheduler.ScheduleEvent(deliverTick, "Shop.ItemDeliveryScheduledEvent", global.shopGui.currentPurchaseId, itemsPurchased)
+
+    return true
+end
+
+Shop.ItemDeliveryScheduledEvent = function(eventData)
+    game.print({"messages.prime_intergalactic_delivery-order_delivered", eventData.instanceId})
+    local itemsPurchased = eventData.data
+
     if global.itemDeliveryPod.modActive then
         game.print("TODO: deliver items via the Item Delivery Pod mod")
     else
-        for itemName, quantity in pairs(global.shopGui.shoppingBasket) do
+        for itemName, quantity in pairs(itemsPurchased) do
             local itemDetails = global.shop.items[itemName]
-            if itemDetails.type == "software" then
-                global.shop.softwareLevelsPurchased[itemName] = global.shop.softwareLevelsPurchased[itemName] + quantity
-            end
-            local inserted = global.facility.deliveryChest.insert({name = itemDetails.item, count = quantity})
-            if inserted < quantity then
-                global.facility.surface.spill_item_stack(global.facility.deliveryChest.position, {name = itemDetails.item, count = quantity - inserted})
+            if itemDetails ~= nil then
+                local inserted = global.facility.deliveryChest.insert({name = itemDetails.item, count = quantity})
+                if inserted < quantity then
+                    global.facility.surface.spill_item_stack(global.facility.deliveryChest.position, {name = itemDetails.item, count = quantity - inserted})
+                end
             end
         end
     end
-    return true
 end
 
 return Shop
