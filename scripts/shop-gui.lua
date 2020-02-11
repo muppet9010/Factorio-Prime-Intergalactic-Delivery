@@ -410,12 +410,15 @@ ShopGui.PopulateItemsList = function(playerIndex)
     local itemListTable = GuiUtil.GetElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemList", "table")
     itemListTable.clear()
     for itemName, itemDetails in pairs(global.shop.items) do
-        local priceValue
+        local disabled, priceValue = false
         if itemDetails.type ~= "software" then
             priceValue = itemDetails.price
         else
             local offeredLevel = global.shopGui.currentSoftwareLevelOffered[itemName]
             priceValue = Interfaces.Call("Shop.CalculateSoftwarePrice", offeredLevel)
+            if offeredLevel > global.shop.softwareMaxLevel then
+                disabled = true
+            end
         end
         GuiUtil.AddElement(
             {
@@ -424,7 +427,8 @@ ShopGui.PopulateItemsList = function(playerIndex)
                 type = "frame",
                 direction = "vertical",
                 style = "muppet_frame_contentInnerLight_shadowRisen",
-                registerClick = {actionName = "ShopGui.SelectItemInListAction", data = {itemName = itemName}},
+                registerClick = {actionName = "ShopGui.SelectItemInListAction", data = {itemName = itemName}, disabled = disabled},
+                enabled = not disabled,
                 children = {
                     {
                         name = "guiShopItemList" .. itemName,
@@ -432,21 +436,24 @@ ShopGui.PopulateItemsList = function(playerIndex)
                         direction = "vertical",
                         style = "muppet_flow_vertical_spaced",
                         styling = {horizontal_align = "center", natural_width = 92, natural_height = 72},
-                        registerClick = {actionName = "ShopGui.SelectItemInListAction", data = {itemName = itemName}},
+                        registerClick = {actionName = "ShopGui.SelectItemInListAction", data = {itemName = itemName}, disabled = disabled},
+                        enabled = not disabled,
                         children = {
                             {
                                 name = "guiShopItemList" .. itemName,
                                 type = "sprite",
                                 style = "muppet_sprite_48",
                                 sprite = itemDetails.picture,
-                                registerClick = {actionName = "ShopGui.SelectItemInListAction", data = {itemName = itemName}}
+                                registerClick = {actionName = "ShopGui.SelectItemInListAction", data = {itemName = itemName}, disabled = disabled},
+                                enabled = not disabled
                             },
                             {
                                 name = "guiShopItemList" .. itemName,
                                 type = "label",
                                 style = "muppet_label_text_small_bold",
                                 caption = Utils.DisplayNumberPretty(priceValue) .. coinIconText,
-                                registerClick = {actionName = "ShopGui.SelectItemInListAction", data = {itemName = itemName}}
+                                registerClick = {actionName = "ShopGui.SelectItemInListAction", data = {itemName = itemName}, disabled = disabled},
+                                enabled = not disabled
                             }
                         }
                     }
@@ -462,7 +469,7 @@ end
 
 ShopGui.UpdateSelectedItemDetails = function(playerIndex, itemName)
     local itemDetails = global.shop.items[itemName]
-    local titleCaption, priceValue
+    local disabled, titleCaption, priceValue = false
     if itemDetails.type ~= "software" then
         titleCaption = {itemDetails.localisedName}
         priceValue = itemDetails.price
@@ -470,6 +477,9 @@ ShopGui.UpdateSelectedItemDetails = function(playerIndex, itemName)
         local offeredLevel = global.shopGui.currentSoftwareLevelOffered[itemName]
         titleCaption = {"gui-caption.prime_intergalactic_delivery-shopGuiItemDetailsTitleSoftware", {itemDetails.localisedName}, offeredLevel}
         priceValue = Interfaces.Call("Shop.CalculateSoftwarePrice", offeredLevel)
+        if offeredLevel > global.shop.softwareMaxLevel then
+            disabled = true
+        end
     end
 
     GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemDetailsTitle", "label", {caption = titleCaption})
@@ -482,8 +492,8 @@ ShopGui.UpdateSelectedItemDetails = function(playerIndex, itemName)
         "shopGuiItemDetailsAdd",
         "button",
         {
-            registerClick = {actionName = "ShopGui.AddToShoppingBasketAction", data = {itemName = itemName}},
-            enabled = true
+            registerClick = {actionName = "ShopGui.AddToShoppingBasketAction", data = {itemName = itemName}, disabled = disabled},
+            enabled = not disabled
         }
     )
 end
@@ -505,11 +515,15 @@ ShopGui.UpdateShoppingBasket = function(playerIndex)
         if itemDetails == nil then
             global.shop.items[itemName] = nil
         else
-            local itemQuantityCost
+            local itemQuantityIncreaseExclude, itemQuantityCost = false
             if itemDetails.type ~= "software" then
                 itemQuantityCost = (itemDetails.price * itemQuantity)
             else
                 itemQuantityCost = Interfaces.Call("Shop.CalculateSoftwareLevelsPrice", itemName, itemQuantity)
+                local offeredLevel = global.shopGui.currentSoftwareLevelOffered[itemName]
+                if offeredLevel > global.shop.softwareMaxLevel then
+                    itemQuantityIncreaseExclude = true
+                end
             end
             totalCostValue = totalCostValue + itemQuantityCost
 
@@ -542,7 +556,15 @@ ShopGui.UpdateShoppingBasket = function(playerIndex)
                                     clicked_sprite = "prime_intergalactic_delivery-basket_up_arrow_hovered",
                                     style = "muppet_sprite_button_noBorder",
                                     styling = {width = 14, height = 7},
-                                    registerClick = {actionName = "ShopGui.ChangeBasketQuantityAction", data = {itemName = itemName, change = 1}}
+                                    registerClick = {actionName = "ShopGui.ChangeBasketQuantityAction", data = {itemName = itemName, change = 1}},
+                                    exclude = itemQuantityIncreaseExclude
+                                },
+                                {
+                                    name = "shopGuiBasketItemQuantityIncreasePlaceholder" .. itemName,
+                                    type = "sprite-button",
+                                    style = "muppet_sprite_button_noBorder",
+                                    styling = {width = 14, height = 7},
+                                    exclude = not itemQuantityIncreaseExclude
                                 },
                                 {
                                     name = "shopGuiBasketItemQuantityDecrease" .. itemName,

@@ -20,13 +20,18 @@ end
 
 --Generally called from the GuiUtil library now, but can be called manually.
 --Called after creating a button or other GuiElement is created to register a specific GUI click action name to it.
-GuiActionsClick.RegisterGuiForClick = function(elementName, elementType, actionName, data)
+-- Optional data will be passed through to the actionName when called. If disabled is true then click not registered (for use with GUI templating).
+GuiActionsClick.RegisterGuiForClick = function(elementName, elementType, actionName, data, disabled)
     if elementName == nil or elementType == nil or actionName == nil then
         error("GuiActions.RegisterGuiForClick called with missing arguments")
     end
     local name = GuiActionsClick.GenerateGuiElementName(elementName, elementType)
     global.UTILITYGUIACTIONSGUICLICK = global.UTILITYGUIACTIONSGUICLICK or {}
-    global.UTILITYGUIACTIONSGUICLICK[name] = {actionName = actionName, data = data}
+    if not disabled then
+        global.UTILITYGUIACTIONSGUICLICK[name] = {actionName = actionName, data = data}
+    else
+        global.UTILITYGUIACTIONSGUICLICK[name] = nil
+    end
 end
 
 --Called when desired to remove a specific button or other GuiElement from triggering its action.

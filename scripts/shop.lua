@@ -24,6 +24,7 @@ Shop.CreateGlobals = function()
     global.shop.softwareStartCost = global.shop.softwareStartCost or 1
     global.shop.softwareLevelCostMultiplier = global.shop.softwareLevelCostMultiplier or 1
     global.shop.softwareLevelEffectBonus = global.shop.softwareLevelEffectBonus or 1
+    global.shop.softwareMaxLevel = global.shop.softwareMaxLevel or 0
     global.shop.softwareLevelsPurchased = global.shop.softwareLevelsPurchased or {}
     global.shop.deliveryDelayMinTicks = global.shop.deliveryDelayMinTicks or 0
     global.shop.deliveryDelayMaxTicks = global.shop.deliveryDelayMaxTicks or 0
@@ -64,18 +65,16 @@ Shop.OnSettingChanged = function(event)
         global.shop.softwareLevelEffectBonus = tonumber(settings.global["prime_intergalactic_delivery-shop_software_effect_level_bonus_percent"].value)
         updateItems = true
     end
+    if settingName == nil or settingName == "prime_intergalactic_delivery-shop_software_max_level" then
+        global.shop.softwareMaxLevel = tonumber(settings.global["prime_intergalactic_delivery-shop_software_max_level"].value)
+        updateItems = true
+    end
     if settingName == nil or settingName == "prime_intergalactic_delivery-delivery_min_delay" then
         global.shop.deliveryDelayMinTicks = tonumber(settings.global["prime_intergalactic_delivery-delivery_min_delay"].value) * 60
     end
     if settingName == nil or settingName == "prime_intergalactic_delivery-delivery_max_delay" then
         global.shop.deliveryDelayMaxTicks = tonumber(settings.global["prime_intergalactic_delivery-delivery_max_delay"].value) * 60
     end
-    --[[
-    if settingName == nil or settingName == "prime_intergalactic_delivery-xxx" then
-        global.shop.xxxxxx = tonumber(settings.global["prime_intergalactic_delivery-xxx"].value)
-        updateItems = true
-    end
-    ]]
     if updateItems then
         Shop.UpdateItems()
     end

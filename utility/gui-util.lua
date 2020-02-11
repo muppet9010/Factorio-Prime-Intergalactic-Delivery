@@ -10,10 +10,14 @@ local Constants = require("constants")
     - The optional "children" argument is an array of other elements detail's arrays, to recursively add in this hierachy. Parent argument isn't required and is ignored for children, as it is worked out during recursive loop.
     - Passing the string "self" as the caption/tooltip value or localised string name will be auto replaced to its unique mod auto generated name under gui-caption/gui-tooltip. This avoids having to duplicate name when defining the element's arguments.
     - The optional "styling" argument of a table of style attributes to be applied post element creation. Saves having to capture local reference to do this with at element declaration point.
-    - The optional "registerClick" passes the supplied "actionName" string and the optional "data" table to GuiActionsClick.RegisterGuiForClick().
+    - The optional "registerClick" passes the supplied "actionName" string, the optional "data" table and the optional disabled boolean to GuiActionsClick.RegisterGuiForClick().
     - The optional "returnElement" if true will return the element in a table of elements. Key will be the elements name..type and the value a reference to the element.
+    - The optional "exclude" if true will mean the GUI Element is ignored. To allow more natural templating.
 ]]
 GuiUtil.AddElement = function(elementDetails)
+    if elementDetails.exclude == true then
+        return
+    end
     local rawName = elementDetails.name
     elementDetails.name = GuiUtil.GenerateGuiElementName(elementDetails.name, elementDetails.type)
     elementDetails.caption = GuiUtil._ReplaceSelfWithGeneratedName(elementDetails, "caption")
@@ -42,7 +46,7 @@ GuiUtil.AddElement = function(elementDetails)
         if elementDetails.name == nil then
             Logging.LogPrint("ERROR: GuiUtil.AddElement registerClick attribute requires element name to be supplied.")
         else
-            GuiActionsClick.RegisterGuiForClick(rawName, elementDetails.type, elementDetails.registerClick.actionName, elementDetails.registerClick.data)
+            GuiActionsClick.RegisterGuiForClick(rawName, elementDetails.type, elementDetails.registerClick.actionName, elementDetails.registerClick.data, elementDetails.registerClick.disabled)
         end
     end
     if elementDetails.children ~= nil then
@@ -98,6 +102,7 @@ GuiUtil.GetOrAddElement = function(arguments, storeName)
     return frameElement
 end
 
+--Similar options as AddElement where arguments exist. Some don't make sense for updating and so not supported.
 GuiUtil.UpdateElementFromPlayersReferenceStorage = function(playerIndex, storeName, name, type, arguments, ignoreMissingElement)
     ignoreMissingElement = ignoreMissingElement or false
     local element = GuiUtil.GetElementFromPlayersReferenceStorage(playerIndex, storeName, name, type)
@@ -108,7 +113,7 @@ GuiUtil.UpdateElementFromPlayersReferenceStorage = function(playerIndex, storeNa
             arguments.styling = nil
         end
         if arguments.registerClick ~= nil then
-            GuiActionsClick.RegisterGuiForClick(name, type, arguments.registerClick.actionName, arguments.registerClick.data)
+            GuiActionsClick.RegisterGuiForClick(name, type, arguments.registerClick.actionName, arguments.registerClick.data, arguments.registerClick.disabled)
             arguments.registerClick = nil
         end
         if arguments.storeName ~= nil then

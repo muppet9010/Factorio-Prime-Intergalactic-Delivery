@@ -82,6 +82,14 @@ data:extend(
             order = "5603"
         },
         {
+            name = "prime_intergalactic_delivery-shop_software_max_level",
+            type = "int-setting",
+            default_value = 20,
+            minimum_value = 0,
+            setting_type = "runtime-global",
+            order = "5604"
+        },
+        {
             name = "prime_intergalactic_delivery-delivery_min_delay",
             type = "double-setting",
             default_value = 60,

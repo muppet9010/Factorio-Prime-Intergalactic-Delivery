@@ -37,9 +37,7 @@ ItemDeliveryPod.OnSettingChanged = function(event)
 end
 
 ItemDeliveryPod.SendItems = function(items)
-    for i = 1, 10 do
-        remote.call("item_delivery_pod", "call_crash_ship", global.facility.shop.position, {3, global.itemDeliveryPod.deliveryAccuracy}, "tiny", items)
-    end
+    remote.call("item_delivery_pod", "call_crash_ship", global.facility.shop.position, {3, global.itemDeliveryPod.deliveryAccuracy}, "tiny", items)
 end
 
 return ItemDeliveryPod
