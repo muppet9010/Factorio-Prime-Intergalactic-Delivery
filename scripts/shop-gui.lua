@@ -5,7 +5,7 @@ local GuiActionsOpened = require("utility/gui-actions-opened")
 local Interfaces = require("utility/interfaces")
 local Events = require("utility/events")
 local Colors = require("utility/colors")
---local Logging = require("utility/logging")
+local Logging = require("utility/logging")
 local Utils = require("utility/utils")
 local Commands = require("utility/commands")
 
@@ -635,7 +635,7 @@ ShopGui.BuyBasketAction = function(actionData)
         ShopGui.EmptyBasketAction(actionData)
         ShopGui.CloseGui(actionData.playerIndex)
     else
-        game.print("ERROR: purchase filed to go through, um........")
+        Logging.LogPrint("ERROR: purchase filed to go through, um........")
     end
 end
 

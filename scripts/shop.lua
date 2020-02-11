@@ -112,7 +112,6 @@ Shop.CalculateSoftwareLevelsPrice = function(softwareName, count)
     local quantityCost = 0
     for level = global.shop.softwareLevelsPurchased[softwareName] + 1, global.shop.softwareLevelsPurchased[softwareName] + count do
         local value = Interfaces.Call("Shop.CalculateSoftwarePrice", level)
-        game.print(level .. " = " .. value)
         quantityCost = quantityCost + value
     end
     return quantityCost
@@ -152,18 +151,22 @@ end
 
 Shop.ItemDeliveryScheduledEvent = function(eventData)
     game.print({"messages.prime_intergalactic_delivery-order_delivered", eventData.instanceId})
-    local itemsPurchased = eventData.data
+    local entityItemsPurchased = {}
+    for itemName, quantity in pairs(eventData.data) do
+        local itemDetails = global.shop.items[itemName]
+        if itemDetails ~= nil then
+            entityItemsPurchased[itemDetails.item] = quantity
+        end
+    end
 
     if global.itemDeliveryPod.modActive then
-        game.print("TODO: deliver items via the Item Delivery Pod mod")
+        Interfaces.Call("ItemDeliveryPod.SendItems", entityItemsPurchased)
     else
-        for itemName, quantity in pairs(itemsPurchased) do
-            local itemDetails = global.shop.items[itemName]
-            if itemDetails ~= nil then
-                local inserted = global.facility.deliveryChest.insert({name = itemDetails.item, count = quantity})
-                if inserted < quantity then
-                    global.facility.surface.spill_item_stack(global.facility.deliveryChest.position, {name = itemDetails.item, count = quantity - inserted})
-                end
+        for entityItemName, quantity in pairs(entityItemsPurchased) do
+            local inserted = global.facility.deliveryChest.insert({name = entityItemName, count = quantity})
+            local couldntBeInserted = quantity - inserted
+            if couldntBeInserted > 0 then
+                global.facility.surface.spill_item_stack(global.facility.deliveryChest.position, {name = entityItemName, count = couldntBeInserted})
             end
         end
     end
