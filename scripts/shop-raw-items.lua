@@ -146,11 +146,33 @@ return {
     softwareMovementSpeed = {
         type = "software",
         localisedName = "item-name.prime_intergalactic_delivery-software_movement_speed",
-        localisedDescription = "item-description.prime_intergalactic_delivery-software_movement_speed",
+        localisedDescription = "item-shop-description.prime_intergalactic_delivery-software_movement_speed",
         picture = "item/prime_intergalactic_delivery-software_movement_speed",
-        item = "prime_intergalactic_delivery-software_movement_speed"
+        item = "prime_intergalactic_delivery-software_movement_speed",
+        printName = "item-effect-name.prime_intergalactic_delivery-software_movement_speed"
     },
-    softwareMiningSpeed = {type = "software", localisedName = "item-name.prime_intergalactic_delivery-software_mining_speed", localisedDescription = "item-description.prime_intergalactic_delivery-software_mining_speed", picture = "item/prime_intergalactic_delivery-software_mining_speed", item = "prime_intergalactic_delivery-software_mining_speed"},
-    softwareCraftingSpeed = {type = "software", localisedName = "item-name.prime_intergalactic_delivery-software_crafting_speed", localisedDescription = "item-description.prime_intergalactic_delivery-software_crafting_speed", picture = "item/prime_intergalactic_delivery-software_crafting_speed", item = "prime_intergalactic_delivery-software_crafting_speed"},
-    softwareInventorySize = {type = "software", localisedName = "item-name.prime_intergalactic_delivery-software_inventory_size", localisedDescription = "item-description.prime_intergalactic_delivery-software_inventory_size", picture = "item/prime_intergalactic_delivery-software_inventory_size", item = "prime_intergalactic_delivery-software_inventory_size"}
+    softwareMiningSpeed = {
+        type = "software",
+        localisedName = "item-name.prime_intergalactic_delivery-software_mining_speed",
+        localisedDescription = "item-shop-description.prime_intergalactic_delivery-software_mining_speed",
+        picture = "item/prime_intergalactic_delivery-software_mining_speed",
+        item = "prime_intergalactic_delivery-software_mining_speed",
+        printName = "item-effect-name.prime_intergalactic_delivery-software_mining_speed"
+    },
+    softwareCraftingSpeed = {
+        type = "software",
+        localisedName = "item-name.prime_intergalactic_delivery-software_crafting_speed",
+        localisedDescription = "item-shop-description.prime_intergalactic_delivery-software_crafting_speed",
+        picture = "item/prime_intergalactic_delivery-software_crafting_speed",
+        item = "prime_intergalactic_delivery-software_crafting_speed",
+        printName = "item-effect-name.prime_intergalactic_delivery-software_crafting_speed"
+    },
+    softwareInventorySize = {
+        type = "software",
+        localisedName = "item-name.prime_intergalactic_delivery-software_inventory_size",
+        localisedDescription = "item-shop-description.prime_intergalactic_delivery-software_inventory_size",
+        picture = "item/prime_intergalactic_delivery-software_inventory_size",
+        item = "prime_intergalactic_delivery-software_inventory_size",
+        printName = "item-effect-name.prime_intergalactic_delivery-software_inventory_size"
+    }
 }

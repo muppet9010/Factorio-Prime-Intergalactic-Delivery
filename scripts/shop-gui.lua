@@ -89,9 +89,9 @@ end
 ShopGui.PlayerOpeningGui = function(player)
     global.shopGui.guiOpenPlayerIndex = player.index
     if player.character ~= nil then
-        global.shopGui.guiOpenPlayerText = rendering.draw_text {text = {"rendering-text.prime_intergalactic_delivery-player_in_shop_gui"}, surface = global.facility.surface, target = player.character, color = Colors.white, alignment = "center"}
+        global.shopGui.guiOpenPlayerText = rendering.draw_text {text = {"rendering-text.prime_intergalactic_delivery-player_in_shop_gui"}, surface = global.surface, target = player.character, color = Colors.white, alignment = "center"}
     end
-    global.shopGui.guiOpenShopText = rendering.draw_text {text = {"rendering-text.prime_intergalactic_delivery-shop_gui_in_use"}, surface = global.facility.surface, target = global.facility.shop, color = Colors.white, alignment = "center"}
+    global.shopGui.guiOpenShopText = rendering.draw_text {text = {"rendering-text.prime_intergalactic_delivery-shop_gui_in_use"}, surface = global.surface, target = global.facility.shop, color = Colors.white, alignment = "center"}
 
     if Utils.GetTableNonNilLength(global.shopGui.currentSoftwareLevelOffered) == 0 then
         for itemName, itemDetails in pairs(global.shop.items) do

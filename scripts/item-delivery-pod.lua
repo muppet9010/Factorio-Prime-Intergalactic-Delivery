@@ -28,7 +28,7 @@ ItemDeliveryPod.OnStartup = function()
     end
 end
 
---Some of these settings won't exist
+--Some of these settings won't exist due to settings requiring another mod to be present.
 ItemDeliveryPod.OnSettingChanged = function(event)
     local settingName = event.setting
     if (settingName == nil or settingName == "prime_intergalactic_delivery-delivery_pod_accuracy") and settings.global["prime_intergalactic_delivery-delivery_pod_accuracy"] ~= nil then

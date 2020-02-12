@@ -28,6 +28,8 @@ Shop.CreateGlobals = function()
     global.shop.softwareLevelsPurchased = global.shop.softwareLevelsPurchased or {}
     global.shop.deliveryDelayMinTicks = global.shop.deliveryDelayMinTicks or 0
     global.shop.deliveryDelayMaxTicks = global.shop.deliveryDelayMaxTicks or 0
+    global.shop.softwareLevelsApplied = global.shop.softwareLevelsApplied or {}
+    global.shop.softwareItemCapsuleLookup = global.shop.softwareItemCapsuleLookup or {}
 end
 
 Shop.OnLoad = function()
@@ -36,6 +38,7 @@ Shop.OnLoad = function()
     Interfaces.RegisterInterface("Shop.CalculateSoftwarePrice", Shop.CalculateSoftwarePrice)
     Interfaces.RegisterInterface("Shop.CalculateSoftwareLevelsPrice", Shop.CalculateSoftwareLevelsPrice)
     EventScheduler.RegisterScheduledEventType("Shop.ItemDeliveryScheduledEvent", Shop.ItemDeliveryScheduledEvent)
+    Events.RegisterHandler(defines.events.on_player_used_capsule, "Shop.OnPlayerUsedCapsule", Shop.OnPlayerUsedCapsule)
 end
 
 Shop.OnStartup = function()
@@ -62,7 +65,12 @@ Shop.OnSettingChanged = function(event)
         updateItems = true
     end
     if settingName == nil or settingName == "prime_intergalactic_delivery-shop_software_effect_level_bonus_percent" then
+        if Utils.GetTableNonNilLength(global.shop.items) == 0 then
+            Shop.UpdateItems()
+        end
+        Shop.ChangeCurrentSoftwareBonuses(nil, true)
         global.shop.softwareLevelEffectBonus = tonumber(settings.global["prime_intergalactic_delivery-shop_software_effect_level_bonus_percent"].value)
+        Shop.ChangeCurrentSoftwareBonuses(nil)
         updateItems = true
     end
     if settingName == nil or settingName == "prime_intergalactic_delivery-shop_software_max_level" then
@@ -75,6 +83,7 @@ Shop.OnSettingChanged = function(event)
     if settingName == nil or settingName == "prime_intergalactic_delivery-delivery_max_delay" then
         global.shop.deliveryDelayMaxTicks = tonumber(settings.global["prime_intergalactic_delivery-delivery_max_delay"].value) * 60
     end
+
     if updateItems then
         Shop.UpdateItems()
     end
@@ -92,9 +101,9 @@ Shop.UpdateItems = function()
             global.shop.items[itemName] = itemDetails
         elseif itemDetails.type == "software" and global.shop.softwareStartCost > 0 then
             global.shop.items[itemName] = itemDetails
-            if global.shop.softwareLevelsPurchased[itemName] == nil then
-                global.shop.softwareLevelsPurchased[itemName] = 0
-            end
+            global.shop.softwareLevelsPurchased[itemName] = global.shop.softwareLevelsPurchased[itemName] or 0
+            global.shop.softwareLevelsApplied[itemName] = global.shop.softwareLevelsApplied[itemName] or 0
+            global.shop.softwareItemCapsuleLookup[itemDetails.item] = itemName
         end
     end
 
@@ -149,7 +158,7 @@ Shop.BuyBasketItems = function()
 end
 
 Shop.ItemDeliveryScheduledEvent = function(eventData)
-    game.print({"messages.prime_intergalactic_delivery-order_delivered", eventData.instanceId})
+    game.print({"message.prime_intergalactic_delivery-order_delivered", eventData.instanceId})
     local entityItemsPurchased = {}
     for itemName, quantity in pairs(eventData.data) do
         local itemDetails = global.shop.items[itemName]
@@ -165,9 +174,63 @@ Shop.ItemDeliveryScheduledEvent = function(eventData)
             local inserted = global.facility.deliveryChest.insert({name = entityItemName, count = quantity})
             local couldntBeInserted = quantity - inserted
             if couldntBeInserted > 0 then
-                global.facility.surface.spill_item_stack(global.facility.deliveryChest.position, {name = entityItemName, count = couldntBeInserted})
+                global.surface.spill_item_stack(global.facility.deliveryChest.position, {name = entityItemName, count = couldntBeInserted})
             end
         end
+    end
+end
+
+Shop.OnPlayerUsedCapsule = function(event)
+    local capsuleName = event.item.name
+    local softwareName = global.shop.softwareItemCapsuleLookup[capsuleName]
+    if softwareName == nil then
+        return
+    end
+
+    Shop.ChangeCurrentSoftwareBonuses(softwareName, true)
+    global.shop.softwareLevelsApplied[softwareName] = global.shop.softwareLevelsApplied[softwareName] + 1
+    Shop.ChangeCurrentSoftwareBonuses(softwareName, false)
+
+    local printName = global.shop.items[softwareName].printName
+    game.print({"message.prime_intergalactic_delivery-software_applied", {printName}, global.shop.softwareLevelsApplied[softwareName]})
+    for _, player in pairs(game.connected_players) do
+        Shop.CreateSparksAroundPosition(Utils.ApplyOffsetToPosition(player.position, {x = 0.2, y = -1}))
+    end
+end
+
+Shop.CreateSparksAroundPosition = function(basePosition)
+    for i = 1, 50 do
+        local sparkNum = math.random(1, 6)
+        local position = Utils.RandomLocationInRadius(basePosition, 1)
+        global.surface.create_trivial_smoke {name = "prime_intergalactic_delivery-software_applied_sparks_" .. sparkNum, position = position}
+    end
+end
+
+Shop.ChangeCurrentSoftwareBonuses = function(softwareName, removeModifier)
+    if softwareName == nil or softwareName == "softwareMovementSpeed" then
+        local modifier = global.shop.softwareLevelsApplied["softwareMovementSpeed"] * (global.shop.softwareLevelEffectBonus / 100)
+        if removeModifier then
+            modifier = 0 - modifier
+        end
+        global.force.character_running_speed_modifier = global.force.character_running_speed_modifier + modifier
+    elseif softwareName == nil or softwareName == "softwareMiningSpeed" then
+        local modifier = global.shop.softwareLevelsApplied["softwareMiningSpeed"] * (global.shop.softwareLevelEffectBonus / 100)
+        if removeModifier then
+            modifier = 0 - modifier
+        end
+        global.force.manual_mining_speed_modifier = global.force.manual_mining_speed_modifier + modifier
+    elseif softwareName == nil or softwareName == "softwareCraftingSpeed" then
+        local modifier = global.shop.softwareLevelsApplied["softwareCraftingSpeed"] * (global.shop.softwareLevelEffectBonus / 100)
+        if removeModifier then
+            modifier = 0 - modifier
+        end
+        global.force.manual_crafting_speed_modifier = global.force.manual_crafting_speed_modifier + modifier
+    elseif softwareName == nil or softwareName == "softwareInventorySize" then
+        local modifier = global.shop.softwareLevelsApplied["softwareInventorySize"] * global.shop.softwareLevelEffectBonus
+        if removeModifier then
+            modifier = 0 - modifier
+        end
+        global.force.character_inventory_slots_bonus = global.force.character_inventory_slots_bonus + modifier
     end
 end
 

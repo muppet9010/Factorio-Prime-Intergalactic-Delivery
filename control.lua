@@ -8,6 +8,8 @@ local Shop = require("scripts/shop")
 local ItemDeliveryPod = require("scripts/item-delivery-pod")
 
 local function CreateGlobals()
+    global.surface = global.surface or game.surfaces[1]
+    global.force = global.force or game.forces["player"]
     ItemDeliveryPod.CreateGlobals()
     Facility.CreateGlobals()
     Shop.CreateGlobals()
@@ -38,6 +40,7 @@ Events.RegisterEvent(defines.events.on_runtime_mod_setting_changed)
 script.on_load(OnLoad)
 Events.RegisterEvent(defines.events.on_player_left_game)
 Events.RegisterEvent(defines.events.on_player_died)
+Events.RegisterEvent(defines.events.on_player_used_capsule)
 
 GuiActionsClick.MonitorGuiClickActions()
 EventScheduler.RegisterScheduler()
