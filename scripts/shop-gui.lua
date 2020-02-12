@@ -360,18 +360,42 @@ ShopGui.CreateGuiStructure = function(player)
                                                     styling = {horizontal_align = "center", height = 88, width = 170, left_margin = 8},
                                                     children = {
                                                         {
-                                                            name = "shopGuiBasketDeliveryEta",
-                                                            type = "label",
-                                                            style = "muppet_label_text_small",
-                                                            caption = {"self", ShopGui.GetDeliveryEtaLocalisedString()},
-                                                            styling = {vertical_align = "center"}
-                                                        },
-                                                        {
-                                                            name = "shopGuiBasketOrderId",
-                                                            type = "label",
-                                                            style = "muppet_label_text_small",
-                                                            caption = {"self", global.shopGui.currentPurchaseId},
-                                                            styling = {vertical_align = "center"}
+                                                            type = "frame",
+                                                            style = "muppet_frame_contentInnerDark_shadowSunken",
+                                                            styling = {width = 166},
+                                                            children = {
+                                                                {
+                                                                    type = "table",
+                                                                    style = "muppet_table_verticalSpaced",
+                                                                    column_count = 2,
+                                                                    styling = {column_alignments = {"left", "left"}},
+                                                                    children = {
+                                                                        {
+                                                                            name = "shopGuiBasketDeliveryEtaLabel",
+                                                                            type = "label",
+                                                                            style = "muppet_label_text_small",
+                                                                            caption = "self",
+                                                                            styling = {horizontally_stretchable = true}
+                                                                        },
+                                                                        {
+                                                                            type = "label",
+                                                                            style = "muppet_label_text_small",
+                                                                            caption = ShopGui.GetDeliveryEtaLocalisedString()
+                                                                        },
+                                                                        {
+                                                                            name = "shopGuiBasketOrderIdLabel",
+                                                                            type = "label",
+                                                                            style = "muppet_label_text_small",
+                                                                            caption = "self"
+                                                                        },
+                                                                        {
+                                                                            type = "label",
+                                                                            style = "muppet_label_text_small",
+                                                                            caption = global.shopGui.currentPurchaseId
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
                                                         },
                                                         {
                                                             type = "flow",

@@ -47,7 +47,7 @@ end
 
 Shop.OnSettingChanged = function(event)
     local settingName = event.setting
-    local updateItems = false
+    local updateItems, recreateGui = false, false
     if settingName == nil or settingName == "prime_intergalactic_delivery-shop_personal_equipment_cost_multiplier" then
         global.shop.personalEquipmentCostMultiplier = tonumber(settings.global["prime_intergalactic_delivery-shop_personal_equipment_cost_multiplier"].value)
         updateItems = true
@@ -79,13 +79,17 @@ Shop.OnSettingChanged = function(event)
     end
     if settingName == nil or settingName == "prime_intergalactic_delivery-delivery_min_delay" then
         global.shop.deliveryDelayMinTicks = tonumber(settings.global["prime_intergalactic_delivery-delivery_min_delay"].value) * 60
+        recreateGui = true
     end
     if settingName == nil or settingName == "prime_intergalactic_delivery-delivery_max_delay" then
         global.shop.deliveryDelayMaxTicks = tonumber(settings.global["prime_intergalactic_delivery-delivery_max_delay"].value) * 60
+        recreateGui = true
     end
 
     if updateItems then
         Shop.UpdateItems()
+    elseif recreateGui then
+        Interfaces.Call("ShopGui.RecreateGui")
     end
 end
 
