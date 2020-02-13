@@ -418,6 +418,15 @@ function Utils.GetTableKeyWithValue(theTable, value)
     return nil
 end
 
+function Utils.GetTableKeyWithInnerKeyValue(theTable, key, value)
+    for i, innerTable in pairs(theTable) do
+        if innerTable[key] ~= nil and innerTable[key] == value then
+            return i
+        end
+    end
+    return nil
+end
+
 function Utils.GetRandomFloatInRange(lower, upper)
     return lower + math.random() * (upper - lower)
 end

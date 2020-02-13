@@ -34,6 +34,7 @@ data:extend(
             type = "market",
             name = "prime_intergalactic_delivery-shop_building",
             flags = {"placeable-off-grid"},
+            collision_mask = {"item-layer", "object-layer", "player-layer", "water-tile", "resource-layer"},
             collision_box = {{-1.4, -1.4}, {1.4, 2.4}},
             selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
             map_color = data.raw["utility-constants"].default.chart.default_friendly_color,
