@@ -27,7 +27,7 @@ end
 local function OnStartup()
     CreateGlobals()
     OnLoad()
-    Events._HandleEvent({name = defines.events.on_runtime_mod_setting_changed})
+    Events.RaiseRuntimeModSettingChangedEventFromStartup()
 
     ItemDeliveryPod.OnStartup()
     Facility.OnStartup()
