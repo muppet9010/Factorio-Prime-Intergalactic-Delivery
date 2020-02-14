@@ -681,7 +681,8 @@ ShopGui.BuyBasketAction = function(actionData)
         ShopGui.EmptyBasketAction(actionData)
         ShopGui.CloseGui(actionData.playerIndex)
     else
-        Logging.LogPrint("ERROR: purchase filed to go through, um........")
+        Logging.LogPrint("Coins removed from Payment Chest before purchase was completed!")
+        ShopGui.CloseGui(actionData.playerIndex)
     end
 end
 

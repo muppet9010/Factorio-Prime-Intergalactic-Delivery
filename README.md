@@ -13,3 +13,8 @@ Random Notes
 
 - Only supports the default navius surface at present.
 - Coins added as a requestable item to player and logistic filters.
+
+Testing Notes
+-------------
+Add a lot of coins to the input chest:
+` /c __prime_intergalactic_delivery__ global.facility.paymentChest.insert{name="coin", count=100000} `
