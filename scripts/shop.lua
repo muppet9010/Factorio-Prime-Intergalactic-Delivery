@@ -5,6 +5,7 @@ local Logging = require("utility/logging")
 local ShopRawItemsList = require("scripts/shop-raw-items")
 local EventScheduler = require("utility/event-scheduler")
 local Utils = require("utility/utils")
+local Commands = require("utility/commands")
 
 --[[
     global.shop.items[itemName] = {
@@ -30,17 +31,19 @@ Shop.CreateGlobals = function()
     global.shop.deliveryDelayMaxTicks = global.shop.deliveryDelayMaxTicks or 0
     global.shop.softwareLevelsApplied = global.shop.softwareLevelsApplied or {}
     global.shop.softwareItemCapsuleLookup = global.shop.softwareItemCapsuleLookup or {}
+    global.shop.ordersMade = global.shop.ordersMade or {}
 end
 
 Shop.OnLoad = function()
     Events.RegisterHandler(defines.events.on_runtime_mod_setting_changed, "Shop.OnSettingChanged", Shop.OnSettingChanged)
-    Interfaces.RegisterInterface("Shop.BuyBasketItems", Shop.BuyBasketItems)
+    Interfaces.RegisterInterface("Shop.BuyItems", Shop.BuyItems)
     Interfaces.RegisterInterface("Shop.CalculateSoftwarePrice", Shop.CalculateSoftwarePrice)
     Interfaces.RegisterInterface("Shop.CalculateSoftwareLevelsPrice", Shop.CalculateSoftwareLevelsPrice)
     EventScheduler.RegisterScheduledEventType("Shop.ItemDeliveryScheduledEvent", Shop.ItemDeliveryScheduledEvent)
     Events.RegisterHandler(defines.events.on_player_used_capsule, "Shop.OnPlayerUsedCapsule", Shop.OnPlayerUsedCapsule)
     Interfaces.RegisterInterface("Shop.RecordSoftwareStartingLevels", Shop.RecordSoftwareStartingLevels)
     Interfaces.RegisterInterface("Shop.UpdateItems", Shop.UpdateItems)
+    Commands.Register("prime_intergalactic_delivery_export_orders", {"api-description.prime_intergalactic_delivery_export_orders"}, Shop.ExportOrders, false)
 end
 
 Shop.OnStartup = function()
@@ -141,9 +144,9 @@ Shop.CalculateSoftwareLevelsPrice = function(softwareName, count)
     return quantityCost
 end
 
-Shop.BuyBasketItems = function()
+Shop.BuyItems = function(playerIndex, orderId, items)
     local totalCost = 0
-    for itemName, quantity in pairs(global.shopGui.shoppingBasket) do
+    for itemName, quantity in pairs(items) do
         local itemDetails = global.shop.items[itemName]
         local thisCost
         if itemDetails.type ~= "software" then
@@ -159,16 +162,19 @@ Shop.BuyBasketItems = function()
         return false
     end
 
-    for itemName, quantity in pairs(global.shopGui.shoppingBasket) do
+    for itemName, quantity in pairs(items) do
         local itemDetails = global.shop.items[itemName]
         if itemDetails.type == "software" then
             global.shop.softwareLevelsPurchased[itemName] = global.shop.softwareLevelsPurchased[itemName] + quantity
         end
     end
 
-    local itemsPurchased = Utils.DeepCopy(global.shopGui.shoppingBasket)
+    local itemsPurchased = Utils.DeepCopy(items)
     local deliverTick = game.tick + math.random(global.shop.deliveryDelayMinTicks, global.shop.deliveryDelayMaxTicks)
-    EventScheduler.ScheduleEvent(deliverTick, "Shop.ItemDeliveryScheduledEvent", global.shopGui.currentPurchaseId, itemsPurchased)
+    EventScheduler.ScheduleEvent(deliverTick, "Shop.ItemDeliveryScheduledEvent", orderId, itemsPurchased)
+
+    local player = game.get_player(playerIndex)
+    table.insert(global.shop.ordersMade, {orderId = orderId, tick = game.tick, playerName = player.name, items = Utils.DeepCopy(items)})
 
     return true
 end
@@ -229,6 +235,10 @@ Shop.CreateSparksAroundPosition = function(basePosition)
         local position = Utils.RandomLocationInRadius(basePosition, 1)
         global.surface.create_trivial_smoke {name = "prime_intergalactic_delivery-software_applied_sparks_" .. sparkNum, position = position}
     end
+end
+
+Shop.ExportOrders = function(commandData)
+    game.write_file("Prime_Intergalactic_Delivery_Orders.txt", Utils.TableContentsToJSON(global.shop.ordersMade), false, commandData.player_index)
 end
 
 return Shop

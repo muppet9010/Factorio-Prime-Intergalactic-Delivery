@@ -6,7 +6,7 @@ data:extend(
         {
             type = "capsule",
             name = "prime_intergalactic_delivery-software_movement_speed",
-            icon = Constants.AssetModName .. "/graphics/icons/software_placeholder.png",
+            icon = Constants.AssetModName .. "/graphics/icons/software_movement_speed.png",
             icon_size = 128,
             icon_mipmaps = 1,
             flags = {"hidden"},
@@ -18,7 +18,7 @@ data:extend(
         {
             type = "capsule",
             name = "prime_intergalactic_delivery-software_mining_speed",
-            icon = Constants.AssetModName .. "/graphics/icons/software_placeholder.png",
+            icon = Constants.AssetModName .. "/graphics/icons/software_mining_speed.png",
             icon_size = 128,
             icon_mipmaps = 1,
             flags = {"hidden"},
@@ -30,7 +30,7 @@ data:extend(
         {
             type = "capsule",
             name = "prime_intergalactic_delivery-software_crafting_speed",
-            icon = Constants.AssetModName .. "/graphics/icons/software_placeholder.png",
+            icon = Constants.AssetModName .. "/graphics/icons/software_crafting_speed.png",
             icon_size = 128,
             icon_mipmaps = 1,
             flags = {"hidden"},
@@ -42,7 +42,7 @@ data:extend(
         {
             type = "capsule",
             name = "prime_intergalactic_delivery-software_inventory_size",
-            icon = Constants.AssetModName .. "/graphics/icons/software_placeholder.png",
+            icon = Constants.AssetModName .. "/graphics/icons/software_inventory.png",
             icon_size = 128,
             icon_mipmaps = 1,
             flags = {"hidden"},

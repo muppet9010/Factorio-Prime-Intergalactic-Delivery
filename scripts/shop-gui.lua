@@ -7,7 +7,6 @@ local Events = require("utility/events")
 local Colors = require("utility/colors")
 local Logging = require("utility/logging")
 local Utils = require("utility/utils")
-local Commands = require("utility/commands")
 
 local coinIconText = " [img=item/coin]"
 
@@ -19,7 +18,6 @@ ShopGui.CreateGlobals = function()
     global.shopGui.shoppingBasket = global.shopGui.shoppingBasket or {}
     global.shopGui.currentSoftwareLevelOffered = global.shopGui.currentSoftwareLevelOffered or {}
     global.shopGui.currentPurchaseId = global.shopGui.currentPurchaseId or math.random(117, 462)
-    global.shopGui.ordersMade = global.shopGui.ordersMade or {}
 end
 
 ShopGui.OnLoad = function()
@@ -34,7 +32,6 @@ ShopGui.OnLoad = function()
     Interfaces.RegisterInterface("ShopGui.RecreateGui", ShopGui.RecreateGui)
     GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.ChangeBasketQuantityAction", ShopGui.ChangeBasketQuantityAction)
     Events.RegisterHandler(defines.events.on_player_died, "ShopGui.OnPlayerDied", ShopGui.OnPlayerDied)
-    Commands.Register("prime_intergalactic_delivery_export_orders", {"api-description.prime_intergalactic_delivery_export_orders"}, ShopGui.ExportOrders, false)
 end
 
 ShopGui.RegisterMarketForOpened = function(marketEntity)
@@ -673,10 +670,8 @@ ShopGui.ChangeBasketQuantity = function(playerIndex, itemName, change)
 end
 
 ShopGui.BuyBasketAction = function(actionData)
-    local purchaseComplete = Interfaces.Call("Shop.BuyBasketItems")
+    local purchaseComplete = Interfaces.Call("Shop.BuyItems", actionData.playerIndex, global.shopGui.currentPurchaseId, global.shopGui.shoppingBasket)
     if purchaseComplete then
-        local player = game.get_player(actionData.playerIndex)
-        table.insert(global.shopGui.ordersMade, {orderId = global.shopGui.currentPurchaseId, tick = game.tick, playerName = player.name, items = Utils.DeepCopy(global.shopGui.shoppingBasket)})
         global.shopGui.currentPurchaseId = global.shopGui.currentPurchaseId + 1
         ShopGui.EmptyBasketAction(actionData)
         ShopGui.CloseGui(actionData.playerIndex)
@@ -699,15 +694,11 @@ ShopGui.GetDeliveryEtaLocalisedString = function()
         if deliveryMinRounded == 0 then
             return {"gui-caption.prime_intergalactic_delivery-shopGuiBasketDeliveryEtaInstant"}
         else
-            return {"gui-caption.prime_intergalactic_delivery-shopGuiBasketDeliveryEtaExactMinutes", Utils.RoundNumberToDecimalPlaces(deliveryMin, 0)}
+            return {"gui-caption.prime_intergalactic_delivery-shopGuiBasketDeliveryEtaExactMinutes", deliveryMinRounded}
         end
     else
-        return {"gui-caption.prime_intergalactic_delivery-shopGuiBasketDeliveryEtaRangeMinutes", Utils.RoundNumberToDecimalPlaces(deliveryMin, 0), Utils.RoundNumberToDecimalPlaces(deliveryMax, 0)}
+        return {"gui-caption.prime_intergalactic_delivery-shopGuiBasketDeliveryEtaRangeMinutes", math.floor(deliveryMin), math.ceil(deliveryMax)}
     end
-end
-
-ShopGui.ExportOrders = function(commandData)
-    game.write_file("Prime_Intergalactic_Delivery_Orders.txt", Utils.TableContentsToJSON(global.shopGui.ordersMade), false, commandData.player_index)
 end
 
 return ShopGui
