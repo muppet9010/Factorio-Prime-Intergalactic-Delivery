@@ -17,6 +17,18 @@ Details
 - Designed for use with Item Delivery Pod mod to make item delivery a bit more explosive. However, will work in a simplier mod without this, delivering to an output chest.
 
 
+Other Mod Integrations
+--------------------
+
+- Item Deliver Pod:
+    - Uses the mod to deliver purchased items to near the shop if mod option enabled for this.
+- Muppet Streamer:
+    - Will add an item for recruiting a team member if this Prime's mod setting has a cost set.
+    - If Prime has an item in the shop the research for Recruiting a Team Member will need to be disabled by setting the researches cost to 0 in the Muppet Streamer mod. Otherwise a warning will be shown and the shop item won't do anything. Basically you can't increase the team member count by both the shop and research in the same game.
+    - Mod options to set the items starting cost and level cost multiplier.
+- Biter Extermination:
+    - Will add an item for buying a Biter Extermination gas capsule. Advised to set the technologies cost to 0 to disable its research option, but won't cause any issues if not.
+
 Random Notes
 -------------
 

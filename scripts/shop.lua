@@ -101,7 +101,7 @@ end
 Shop.UpdateItems = function()
     global.shop.items = {}
 
-    for itemName, itemDetails in pairs(ShopRawItemsList) do
+    for itemName, itemDetails in pairs(ShopRawItemsList.Get()) do
         if itemDetails.type == "personal" and global.shop.personalEquipmentCostMultiplier > 0 then
             itemDetails.price = itemDetails.price * global.shop.personalEquipmentCostMultiplier
             global.shop.items[itemName] = itemDetails
