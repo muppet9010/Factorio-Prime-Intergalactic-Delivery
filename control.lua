@@ -6,6 +6,8 @@ local EventScheduler = require("utility/event-scheduler")
 local ShopGui = require("scripts/shop-gui")
 local Shop = require("scripts/shop")
 local ItemDeliveryPod = require("scripts/item-delivery-pod")
+local RecruitTeamMember = require("scripts/modded-shop-items/recruit-team-member")
+local BiterExtermination = require("scripts/modded-shop-items/biter-extermination")
 
 local function CreateGlobals()
     global.surface = global.surface or game.surfaces[1]
@@ -14,6 +16,8 @@ local function CreateGlobals()
     Facility.CreateGlobals()
     Shop.CreateGlobals()
     ShopGui.CreateGlobals()
+    RecruitTeamMember.CreateGlobals()
+    BiterExtermination.CreateGlobals()
 end
 
 local function OnLoad()
@@ -22,12 +26,14 @@ local function OnLoad()
     Facility.OnLoad()
     Shop.OnLoad()
     ShopGui.OnLoad()
+    RecruitTeamMember.OnLoad()
+    BiterExtermination.OnLoad()
 end
 
 local function OnStartup()
     CreateGlobals()
     OnLoad()
-    Events.RaiseRuntimeModSettingChangedEventFromStartup()
+    Events.RaiseInternalEvent({name = defines.events.on_runtime_mod_setting_changed})
 
     ItemDeliveryPod.OnStartup()
     Facility.OnStartup()
@@ -41,6 +47,7 @@ script.on_load(OnLoad)
 Events.RegisterEvent(defines.events.on_player_left_game)
 Events.RegisterEvent(defines.events.on_player_died)
 Events.RegisterEvent(defines.events.on_player_used_capsule)
+Events.RegisterEvent("Shop.UpdatingItems")
 
 GuiActionsClick.MonitorGuiClickActions()
 EventScheduler.RegisterScheduler()

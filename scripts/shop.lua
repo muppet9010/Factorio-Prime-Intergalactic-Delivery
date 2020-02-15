@@ -1,14 +1,14 @@
 local Shop = {}
 local Events = require("utility/events")
 local Interfaces = require("utility/interfaces")
---local Logging = require("utility/logging")
+local Logging = require("utility/logging")
 local ShopRawItemsList = require("scripts/shop-raw-items")
 local EventScheduler = require("utility/event-scheduler")
 local Utils = require("utility/utils")
 
 --[[
     global.shop.items[itemName] = {
-        type = STRING (personal/infrastructure),
+        type = STRING - types of mod setting that applies (personal/infrastructure/software), with "simple" meaning pass through as-is,
         localisedName = STRING (goes in {} at run time),
         localisedDescription = STRING (goes in {} at run time),
         picture = STRING (sprite path),
@@ -39,14 +39,16 @@ Shop.OnLoad = function()
     Interfaces.RegisterInterface("Shop.CalculateSoftwareLevelsPrice", Shop.CalculateSoftwareLevelsPrice)
     EventScheduler.RegisterScheduledEventType("Shop.ItemDeliveryScheduledEvent", Shop.ItemDeliveryScheduledEvent)
     Events.RegisterHandler(defines.events.on_player_used_capsule, "Shop.OnPlayerUsedCapsule", Shop.OnPlayerUsedCapsule)
+    Interfaces.RegisterInterface("Shop.RecordSoftwareStartingLevels", Shop.RecordSoftwareStartingLevels)
+    Interfaces.RegisterInterface("Shop.UpdateItems", Shop.UpdateItems)
 end
 
 Shop.OnStartup = function()
     Shop.UpdateItems()
 end
 
-Shop.OnSettingChanged = function(event)
-    local settingName = event.setting
+Shop.OnSettingChanged = function(eventData)
+    local settingName = eventData.setting
     local updateItems, recreateGui = false, false
     if settingName == nil or settingName == "prime_intergalactic_delivery-shop_personal_equipment_cost_multiplier" then
         global.shop.personalEquipmentCostMultiplier = tonumber(settings.global["prime_intergalactic_delivery-shop_personal_equipment_cost_multiplier"].value)
@@ -68,9 +70,9 @@ Shop.OnSettingChanged = function(event)
         if Utils.GetTableNonNilLength(global.shop.items) == 0 then
             Shop.UpdateItems()
         end
-        Shop.ChangeCurrentSoftwareBonuses(nil, true)
+        Shop.ApplyCoreBonusEffects(true)
         global.shop.softwareLevelEffectBonus = tonumber(settings.global["prime_intergalactic_delivery-shop_software_effect_level_bonus_percent"].value)
-        Shop.ChangeCurrentSoftwareBonuses(nil)
+        Shop.ApplyCoreBonusEffects(false)
         updateItems = true
     end
     if settingName == nil or settingName == "prime_intergalactic_delivery-shop_software_max_level" then
@@ -105,13 +107,22 @@ Shop.UpdateItems = function()
             global.shop.items[itemName] = itemDetails
         elseif itemDetails.type == "software" and global.shop.softwareStartCost > 0 then
             global.shop.items[itemName] = itemDetails
-            global.shop.softwareLevelsPurchased[itemName] = global.shop.softwareLevelsPurchased[itemName] or 0
-            global.shop.softwareLevelsApplied[itemName] = global.shop.softwareLevelsApplied[itemName] or 0
-            global.shop.softwareItemCapsuleLookup[itemDetails.item] = itemName
+            Shop.RecordSoftwareStartingLevels(itemName, itemDetails)
+        elseif itemDetails.type == "simple" then
+            global.shop.items[itemName] = itemDetails
+        else
+            Logging.LogPrint("unhandled shop item - type: '" .. itemDetails.type .. "' - name: '" .. itemName .. "'")
         end
     end
+    Events.RaiseInternalEvent({name = "Shop.UpdatingItems"})
 
     Interfaces.Call("ShopGui.RecreateGui")
+end
+
+Shop.RecordSoftwareStartingLevels = function(itemName, itemDetails)
+    global.shop.softwareLevelsPurchased[itemName] = global.shop.softwareLevelsPurchased[itemName] or 0
+    global.shop.softwareLevelsApplied[itemName] = global.shop.softwareLevelsApplied[itemName] or 0
+    global.shop.softwareItemCapsuleLookup[itemDetails.item] = itemName
 end
 
 Shop.CalculateSoftwarePrice = function(level)
@@ -122,8 +133,9 @@ end
 
 Shop.CalculateSoftwareLevelsPrice = function(softwareName, count)
     local quantityCost = 0
+    local softwareDetails = global.shop.items[softwareName]
     for level = global.shop.softwareLevelsPurchased[softwareName] + 1, global.shop.softwareLevelsPurchased[softwareName] + count do
-        local value = Interfaces.Call("Shop.CalculateSoftwarePrice", level)
+        local value = Interfaces.Call(softwareDetails.priceCalculationInterfaceName, level)
         quantityCost = quantityCost + value
     end
     return quantityCost
@@ -191,14 +203,23 @@ Shop.OnPlayerUsedCapsule = function(event)
         return
     end
 
-    Shop.ChangeCurrentSoftwareBonuses(softwareName, true)
+    local itemDetails = global.shop.items[softwareName]
+    itemDetails.bonusEffect(true)
     global.shop.softwareLevelsApplied[softwareName] = global.shop.softwareLevelsApplied[softwareName] + 1
-    Shop.ChangeCurrentSoftwareBonuses(softwareName, false)
+    itemDetails.bonusEffect(false)
 
     local printName = global.shop.items[softwareName].printName
-    game.print({"message.prime_intergalactic_delivery-software_applied", {printName}, global.shop.softwareLevelsApplied[softwareName]})
+    game.print({"message.prime_intergalactic_delivery-software_applied", printName, global.shop.softwareLevelsApplied[softwareName]})
     for _, player in pairs(game.connected_players) do
         Shop.CreateSparksAroundPosition(Utils.ApplyOffsetToPosition(player.position, {x = 0.2, y = -1}))
+    end
+end
+
+Shop.ApplyCoreBonusEffects = function(removing)
+    for _, itemDetails in pairs(global.shop.items) do
+        if itemDetails.type == "software" and itemDetails.bonusEffectType == "core" then
+            itemDetails.bonusEffect(removing)
+        end
     end
 end
 
@@ -207,34 +228,6 @@ Shop.CreateSparksAroundPosition = function(basePosition)
         local sparkNum = math.random(1, 6)
         local position = Utils.RandomLocationInRadius(basePosition, 1)
         global.surface.create_trivial_smoke {name = "prime_intergalactic_delivery-software_applied_sparks_" .. sparkNum, position = position}
-    end
-end
-
-Shop.ChangeCurrentSoftwareBonuses = function(softwareName, removeModifier)
-    if softwareName == nil or softwareName == "softwareMovementSpeed" then
-        local modifier = global.shop.softwareLevelsApplied["softwareMovementSpeed"] * (global.shop.softwareLevelEffectBonus / 100)
-        if removeModifier then
-            modifier = 0 - modifier
-        end
-        global.force.character_running_speed_modifier = global.force.character_running_speed_modifier + modifier
-    elseif softwareName == nil or softwareName == "softwareMiningSpeed" then
-        local modifier = global.shop.softwareLevelsApplied["softwareMiningSpeed"] * (global.shop.softwareLevelEffectBonus / 100)
-        if removeModifier then
-            modifier = 0 - modifier
-        end
-        global.force.manual_mining_speed_modifier = global.force.manual_mining_speed_modifier + modifier
-    elseif softwareName == nil or softwareName == "softwareCraftingSpeed" then
-        local modifier = global.shop.softwareLevelsApplied["softwareCraftingSpeed"] * (global.shop.softwareLevelEffectBonus / 100)
-        if removeModifier then
-            modifier = 0 - modifier
-        end
-        global.force.manual_crafting_speed_modifier = global.force.manual_crafting_speed_modifier + modifier
-    elseif softwareName == nil or softwareName == "softwareInventorySize" then
-        local modifier = global.shop.softwareLevelsApplied["softwareInventorySize"] * global.shop.softwareLevelEffectBonus
-        if removeModifier then
-            modifier = 0 - modifier
-        end
-        global.force.character_inventory_slots_bonus = global.force.character_inventory_slots_bonus + modifier
     end
 end
 

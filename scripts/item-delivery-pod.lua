@@ -31,8 +31,10 @@ end
 --Some of these settings won't exist due to settings requiring another mod to be present.
 ItemDeliveryPod.OnSettingChanged = function(event)
     local settingName = event.setting
-    if (settingName == nil or settingName == "prime_intergalactic_delivery-delivery_pod_accuracy") and settings.global["prime_intergalactic_delivery-delivery_pod_accuracy"] ~= nil then
-        global.itemDeliveryPod.deliveryAccuracy = tonumber(settings.global["prime_intergalactic_delivery-delivery_pod_accuracy"].value)
+
+    local deliveryPodAccuracySetting = settings.global["prime_intergalactic_delivery-delivery_pod_accuracy"]
+    if deliveryPodAccuracySetting ~= nil and (settingName == nil or settingName == "prime_intergalactic_delivery-delivery_pod_accuracy") then
+        global.itemDeliveryPod.deliveryAccuracy = tonumber(deliveryPodAccuracySetting.value)
     end
 end
 

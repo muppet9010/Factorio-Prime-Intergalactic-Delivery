@@ -8,7 +8,9 @@
     "factorio_version": "0.18",
     "dependencies": [
         "base >= 0.18",
-        "? item_delivery_pod"
+        "? item_delivery_pod",
+        "? biter_extermination",
+        "? muppet_streamer"
     ],
     "description": "A shopping point for getting those personal items with coins"
 }

@@ -439,7 +439,7 @@ ShopGui.PopulateItemsList = function(playerIndex)
             priceValue = itemDetails.price
         else
             local offeredLevel = global.shopGui.currentSoftwareLevelOffered[itemName]
-            priceValue = Interfaces.Call("Shop.CalculateSoftwarePrice", offeredLevel)
+            priceValue = Interfaces.Call(itemDetails.priceCalculationInterfaceName, offeredLevel)
             if offeredLevel > global.shop.softwareMaxLevel then
                 disabled = true
             end
@@ -495,12 +495,12 @@ ShopGui.UpdateSelectedItemDetails = function(playerIndex, itemName)
     local itemDetails = global.shop.items[itemName]
     local disabled, titleCaption, priceValue = false
     if itemDetails.type ~= "software" then
-        titleCaption = {itemDetails.localisedName}
+        titleCaption = itemDetails.shopDisplayName
         priceValue = itemDetails.price
     else
         local offeredLevel = global.shopGui.currentSoftwareLevelOffered[itemName]
-        titleCaption = {"gui-caption.prime_intergalactic_delivery-shopGuiItemDetailsTitleSoftware", {itemDetails.localisedName}, offeredLevel}
-        priceValue = Interfaces.Call("Shop.CalculateSoftwarePrice", offeredLevel)
+        titleCaption = {"gui-caption.prime_intergalactic_delivery-shopGuiItemDetailsTitleSoftware", itemDetails.shopDisplayName, offeredLevel}
+        priceValue = Interfaces.Call(itemDetails.priceCalculationInterfaceName, offeredLevel)
         if offeredLevel > global.shop.softwareMaxLevel then
             disabled = true
         end
@@ -508,7 +508,7 @@ ShopGui.UpdateSelectedItemDetails = function(playerIndex, itemName)
 
     GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemDetailsTitle", "label", {caption = titleCaption})
     GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemDetailsImage", "sprite", {sprite = itemDetails.picture})
-    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemsDetailsDescription", "label", {caption = {itemDetails.localisedDescription}})
+    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemsDetailsDescription", "label", {caption = itemDetails.shopDisplayDescription})
     GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemDetailsPrice", "label", {caption = Utils.DisplayNumberPretty(priceValue) .. coinIconText})
     GuiUtil.UpdateElementFromPlayersReferenceStorage(
         playerIndex,
@@ -556,7 +556,7 @@ ShopGui.UpdateShoppingBasket = function(playerIndex)
                     parent = shoppingBasketList,
                     type = "label",
                     style = "muppet_label_text_small_semibold",
-                    caption = {itemDetails.localisedName}
+                    caption = itemDetails.shopDisplayName
                 }
             )
             GuiUtil.AddElement(

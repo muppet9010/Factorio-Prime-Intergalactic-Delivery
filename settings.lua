@@ -134,3 +134,39 @@ if mods["item_delivery_pod"] ~= nil then
         }
     )
 end
+if mods["biter_extermination"] ~= nil then
+    data:extend(
+        {
+            {
+                name = "prime_intergalactic_delivery-biter_extermination_item_cost",
+                type = "int-setting",
+                default_value = 100000,
+                minimum_value = 0,
+                setting_type = "runtime-global",
+                order = "7310"
+            }
+        }
+    )
+end
+if mods["muppet_streamer"] ~= nil then
+    data:extend(
+        {
+            {
+                name = "prime_intergalactic_delivery-muppet_streamer_recruit_team_member_software_start_cost",
+                type = "int-setting",
+                default_value = 5000,
+                minimum_value = 0,
+                setting_type = "runtime-global",
+                order = "7320"
+            },
+            {
+                name = "prime_intergalactic_delivery-muppet_streamer_recruit_team_member_software_cost_level_multiplier",
+                type = "double-setting",
+                default_value = 2,
+                minimum_value = 0,
+                setting_type = "runtime-global",
+                order = "7321"
+            }
+        }
+    )
+end

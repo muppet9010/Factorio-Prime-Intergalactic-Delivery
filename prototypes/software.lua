@@ -1,18 +1,5 @@
 local Constants = require("constants")
-
-local capsuleAction = {
-    type = "use-on-self",
-    attack_parameters = {
-        type = "projectile",
-        ammo_category = "capsule",
-        cooldown = 0,
-        range = 0,
-        ammo_type = {
-            category = "capsule",
-            target_type = "position"
-        }
-    }
-}
+local Shared = require("prototypes/_shared")
 
 data:extend(
     {
@@ -26,7 +13,7 @@ data:extend(
             subgroup = "other",
             order = "z",
             stack_size = 1,
-            capsule_action = capsuleAction
+            capsule_action = Shared.capsuleAction
         },
         {
             type = "capsule",
@@ -38,7 +25,7 @@ data:extend(
             subgroup = "other",
             order = "z",
             stack_size = 1,
-            capsule_action = capsuleAction
+            capsule_action = Shared.capsuleAction
         },
         {
             type = "capsule",
@@ -50,7 +37,7 @@ data:extend(
             subgroup = "other",
             order = "z",
             stack_size = 1,
-            capsule_action = capsuleAction
+            capsule_action = Shared.capsuleAction
         },
         {
             type = "capsule",
@@ -62,7 +49,7 @@ data:extend(
             subgroup = "other",
             order = "z",
             stack_size = 1,
-            capsule_action = capsuleAction
+            capsule_action = Shared.capsuleAction
         },
         {
             type = "optimized-particle",
