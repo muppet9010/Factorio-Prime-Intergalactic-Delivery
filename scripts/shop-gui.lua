@@ -144,9 +144,9 @@ ShopGui.CreateGuiStructure = function(player)
                                 {
                                     name = "shopGuiCloseButton",
                                     type = "sprite-button",
-                                    sprite = "prime_intergalactic_delivery-close_white",
                                     tooltip = "self",
-                                    style = "muppet_sprite_button_frame_clickable",
+                                    sprite = "utility/close_white",
+                                    style = "muppet_sprite_button_frameCloseButtonClickable",
                                     registerClick = {actionName = "ShopGui.CloseGuiClickAction"}
                                 }
                             }
