@@ -485,6 +485,13 @@ ShopGui.PopulateItemsList = function(playerIndex)
 end
 
 ShopGui.SelectItemInListAction = function(actionData)
+    local quantity = 1
+    if actionData.eventData.button == defines.mouse_button_type.right then
+        quantity = 5
+    end
+    if actionData.eventData.shift then
+        ShopGui.ChangeBasketQuantity(actionData.playerIndex, actionData.data.itemName, quantity)
+    end
     ShopGui.UpdateSelectedItemDetails(actionData.playerIndex, actionData.data.itemName)
 end
 
@@ -520,7 +527,11 @@ ShopGui.UpdateSelectedItemDetails = function(playerIndex, itemName)
 end
 
 ShopGui.AddToShoppingBasketAction = function(actionData)
-    ShopGui.ChangeBasketQuantity(actionData.playerIndex, actionData.data.itemName, 1)
+    local quantity = 1
+    if actionData.eventData.button == defines.mouse_button_type.right then
+        quantity = 5
+    end
+    ShopGui.ChangeBasketQuantity(actionData.playerIndex, actionData.data.itemName, quantity)
 end
 
 ShopGui.UpdateShoppingBasket = function(playerIndex)
@@ -645,7 +656,11 @@ ShopGui.UpdateShoppingBasket = function(playerIndex)
 end
 
 ShopGui.ChangeBasketQuantityAction = function(actionData)
-    ShopGui.ChangeBasketQuantity(actionData.playerIndex, actionData.data.itemName, actionData.data.change)
+    local quantity = 1
+    if actionData.eventData.button == defines.mouse_button_type.right then
+        quantity = 5
+    end
+    ShopGui.ChangeBasketQuantity(actionData.playerIndex, actionData.data.itemName, actionData.data.change * quantity)
 end
 
 ShopGui.ChangeBasketQuantity = function(playerIndex, itemName, change)

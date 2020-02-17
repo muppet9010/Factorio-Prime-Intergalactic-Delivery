@@ -1,8 +1,6 @@
 Next:
-	- Double clicking an item in the list adds 1 straigh to the basket as well as selecting it in the details pane. - If double clicking can be detected???
 	- Vehicles and rail item option groups
 	- add weapons (including nukes) option
-	- option that when holding control/shift or right clicking you add 5 of the item to shopping basket at a time.
 	- add a clickable HELP gui.
 	- make the window dragable around the screen.
 	- if you walk too far away from the market the window should close.
