@@ -2,6 +2,7 @@ local ShopGui = {}
 local GuiUtil = require("utility/gui-util")
 local GuiActionsClick = require("utility/gui-actions-click")
 local GuiActionsOpened = require("utility/gui-actions-opened")
+local GuiActionsClosed = require("utility/gui-actions-closed")
 local Interfaces = require("utility/interfaces")
 local Events = require("utility/events")
 local Colors = require("utility/colors")
@@ -32,6 +33,7 @@ ShopGui.OnLoad = function()
     Interfaces.RegisterInterface("ShopGui.RecreateGui", ShopGui.RecreateGui)
     GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.ChangeBasketQuantityAction", ShopGui.ChangeBasketQuantityAction)
     Events.RegisterHandler(defines.events.on_player_died, "ShopGui.OnPlayerDied", ShopGui.OnPlayerDied)
+    GuiActionsClosed.LinkGuiClosedActionNameToFunction("ShopGui.OnGuiTypeClosed", ShopGui.OnGuiTypeClosed)
 end
 
 ShopGui.RegisterMarketForOpened = function(marketEntity)
@@ -51,7 +53,16 @@ ShopGui.CloseGuiClickAction = function(actionData)
     ShopGui.CloseGui(actionData.playerIndex)
 end
 
+ShopGui.OnGuiTypeClosed = function(actionData)
+    if actionData.playerIndex ~= global.shopGui.guiOpenPlayerIndex then
+        return
+    end
+    ShopGui.CloseGui(actionData.playerIndex)
+end
+
 ShopGui.CloseGui = function(playerIndex)
+    local player = game.get_player(playerIndex)
+    player.opened = nil --close our player GUI
     global.shopGui.guiOpenPlayerIndex = nil
     if global.shopGui.guiOpenPlayerText ~= nil then
         rendering.destroy(global.shopGui.guiOpenPlayerText)
@@ -101,6 +112,9 @@ ShopGui.PlayerOpeningGui = function(player)
     ShopGui.CreateGuiStructure(player)
     ShopGui.PopulateItemsList(player.index)
     ShopGui.UpdateShoppingBasket(player.index)
+
+    player.opened = GuiUtil.GetElementFromPlayersReferenceStorage(player.index, "ShopGui", "shopGuiMain", "frame")
+    GuiActionsClosed.RegisterActionNameForGuiTypeClosed(defines.gui_type.custom, "ShopGui.OnGuiTypeClosed")
 end
 
 ShopGui.CreateGuiStructure = function(player)

@@ -1,5 +1,4 @@
 Next:
-	- make the window close when E or escape is pressed like Factory Planner mod does.
 
 
 Future:
