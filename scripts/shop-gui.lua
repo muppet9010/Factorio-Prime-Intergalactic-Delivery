@@ -106,12 +106,13 @@ end
 ShopGui.CreateGuiStructure = function(player)
     GuiUtil.AddElement(
         {
-            parent = player.gui.center,
+            parent = player.gui.screen,
             name = "shopGuiMain",
             type = "frame",
             direction = "vertical",
             style = "muppet_frame_main_shadowRisen_paddingBR",
             storeName = "ShopGui",
+            attributes = {auto_center = true},
             children = {
                 {
                     type = "flow",
@@ -126,10 +127,21 @@ ShopGui.CreateGuiStructure = function(player)
                             caption = "self"
                         },
                         {
+                            name = "shopGuiDragBar",
+                            type = "empty-widget",
+                            style = "draggable_space",
+                            styling = {horizontally_stretchable = true, height = 20, top_margin = 4},
+                            attributes = {
+                                drag_target = function()
+                                    return GuiUtil.GetElementFromPlayersReferenceStorage(player.index, "ShopGui", "shopGuiMain", "frame")
+                                end
+                            }
+                        },
+                        {
                             type = "flow",
                             direction = "horizontal",
                             style = "muppet_flow_horizontal_spaced",
-                            styling = {horizontal_align = "right", horizontally_stretchable = true, top_margin = 4},
+                            styling = {horizontal_align = "right", top_margin = 4},
                             children = {
                                 {
                                     name = "shopGuiBasketEmpty",
