@@ -20,9 +20,10 @@ local Commands = require("utility/commands")
 Shop.CreateGlobals = function()
     global.shop = global.shop or {}
     global.shop.items = global.shop.items or {}
-    global.shop.personalEquipmentCostMultiplier = global.shop.personalEquipmentCostMultiplier or 1
-    global.shop.infrastructureCostMultiplier = global.shop.infrastructureCostMultiplier or 1
-    global.shop.softwareStartCost = global.shop.softwareStartCost or 1
+    global.shop.personalEquipmentCostMultiplier = global.shop.personalEquipmentCostMultiplier or 0
+    global.shop.infrastructureCostMultiplier = global.shop.infrastructureCostMultiplier or 0
+    global.shop.weaponCostMultiplier = global.shop.weaponCostMultiplier or 0
+    global.shop.softwareStartCost = global.shop.softwareStartCost or 0
     global.shop.softwareLevelCostMultiplier = global.shop.softwareLevelCostMultiplier or 1
     global.shop.softwareLevelEffectBonus = global.shop.softwareLevelEffectBonus or 1
     global.shop.softwareMaxLevel = global.shop.softwareMaxLevel or 0
@@ -59,6 +60,10 @@ Shop.OnSettingChanged = function(eventData)
     end
     if settingName == nil or settingName == "prime_intergalactic_delivery-shop_infrastructure_cost_multiplier" then
         global.shop.infrastructureCostMultiplier = tonumber(settings.global["prime_intergalactic_delivery-shop_infrastructure_cost_multiplier"].value)
+        updateItems = true
+    end
+    if settingName == nil or settingName == "prime_intergalactic_delivery-shop_weapon_cost_multiplier" then
+        global.shop.weaponCostMultiplier = tonumber(settings.global["prime_intergalactic_delivery-shop_weapon_cost_multiplier"].value)
         updateItems = true
     end
     if settingName == nil or settingName == "prime_intergalactic_delivery-shop_software_start_cost" then
@@ -107,6 +112,9 @@ Shop.UpdateItems = function()
             global.shop.items[itemName] = itemDetails
         elseif itemDetails.type == "infrastructure" and global.shop.infrastructureCostMultiplier > 0 then
             itemDetails.price = itemDetails.price * global.shop.infrastructureCostMultiplier
+            global.shop.items[itemName] = itemDetails
+        elseif itemDetails.type == "weapon" and global.shop.weaponCostMultiplier > 0 then
+            itemDetails.price = itemDetails.price * global.shop.weaponCostMultiplier
             global.shop.items[itemName] = itemDetails
         elseif itemDetails.type == "software" and global.shop.softwareStartCost > 0 then
             global.shop.items[itemName] = itemDetails

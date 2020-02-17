@@ -59,7 +59,7 @@ data:extend(
             name = "prime_intergalactic_delivery-shop_personal_equipment_cost_multiplier",
             type = "double-setting",
             default_value = 1,
-            minimum_value = -1,
+            minimum_value = 0,
             setting_type = "runtime-global",
             order = "5501"
         },
@@ -67,15 +67,23 @@ data:extend(
             name = "prime_intergalactic_delivery-shop_infrastructure_cost_multiplier",
             type = "double-setting",
             default_value = 1,
-            minimum_value = -1,
+            minimum_value = 0,
             setting_type = "runtime-global",
             order = "5502"
+        },
+        {
+            name = "prime_intergalactic_delivery-shop_weapon_cost_multiplier",
+            type = "double-setting",
+            default_value = 1,
+            minimum_value = 0,
+            setting_type = "runtime-global",
+            order = "5503"
         },
         {
             name = "prime_intergalactic_delivery-shop_software_start_cost",
             type = "int-setting",
             default_value = 500,
-            minimum_value = -1,
+            minimum_value = 0,
             setting_type = "runtime-global",
             order = "5601"
         },

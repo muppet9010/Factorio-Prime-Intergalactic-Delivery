@@ -1,6 +1,4 @@
 Next:
-	- Vehicles and rail item option groups
-	- add weapons (including nukes) option
 	- add a clickable HELP gui.
 	- make the window dragable around the screen.
 	- if you walk too far away from the market the window should close.
@@ -10,4 +8,6 @@ Next:
 Future:
 	- openable gui to see upgrades got clealy. while many effects will be shown in the bonus tab, they will be mixed in with other researches. being at the market could see next skill levels and therefor know current, but not as smooth. shortcut item and shortcut key
 	- audio when items are going to be delivered - needs a remote call to the item-delivery-pod maybe or can just go off when this mod sends the delivery command?
-	- Have item costs generated from in-game recipes (select cheapest option). So they are always up to date and would support modded items and their settings. Expensive mod?
+	- Have item costs generated from in-game recipes (select cheapest recipe). So they are always up to date and would support modded items and their settings. Support expensive mode?
+	- Vehicles and rail item option groups
+	- add other weapons option

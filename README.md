@@ -16,9 +16,9 @@ Details
 - Factorio coins need to be aquired through other mods and can then be spent with this mod.
 - Designed for use with Item Delivery Pod mod to make item delivery a bit more explosive. However, will work in a simplier mod without this, delivering to an output chest.
 - Shopping GUI Interactons:
-    - Left click on an item in the item list or a button to do its action once.
-    - Righ click on an item in the item list or a button to do the action 5 times. Only applies to quantities being added/removed from the basket.
-    - When clicking on an item in the item list hold Shift to add it straight to the shopping basket. Applies to both mouse buttons (1 or 5 items).
+    - Left click on an item in the product catalogue or a button to do its action once.
+    - Righ click on an item in the product catalogue or a button to do the action 5 times. Only applies to quantities being added/removed from the basket.
+    - When clicking on an item in the product catalogue hold Shift to add it straight to the shopping basket, rather than just to show its details.
 
 
 Other Mod Integrations

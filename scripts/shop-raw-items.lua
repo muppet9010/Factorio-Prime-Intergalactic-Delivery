@@ -164,6 +164,15 @@ ShopRawItemsList.Get = function()
             item = "roboport",
             quantity = 1
         },
+        atomicBomb = {
+            type = "weapon",
+            shopDisplayName = {"item-name.atomic-bomb"},
+            shopDisplayDescription = {"technology-description.atomic-bomb"},
+            picture = "item/atomic-bomb",
+            price = 840,
+            item = "atomic-bomb",
+            quantity = 1
+        },
         softwareMovementSpeed = {
             type = "software",
             shopDisplayName = {"item-name.prime_intergalactic_delivery-software_movement_speed"},
