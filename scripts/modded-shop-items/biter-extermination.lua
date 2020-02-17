@@ -15,12 +15,15 @@ end
 
 --Some of these settings won't exist due to settings requiring another mod to be present.
 BiterExtermination.OnSettingChanged = function(event)
+    if game.active_mods["biter_extermination"] == nil then
+        return
+    end
+
     local settingName = event.setting
     local updateItems = false
 
-    local biterExterminationSetting = settings.global["prime_intergalactic_delivery-biter_extermination_item_cost"]
-    if biterExterminationSetting ~= nil and (settingName == nil or settingName == "prime_intergalactic_delivery-biter_extermination_item_cost") then
-        global.biterExtermination.capsuleCost = tonumber(biterExterminationSetting.value)
+    if settingName == nil or settingName == "prime_intergalactic_delivery-biter_extermination_item_cost" then
+        global.biterExtermination.capsuleCost = tonumber(settings.global["prime_intergalactic_delivery-biter_extermination_item_cost"].value)
         updateItems = true
     end
 
@@ -39,7 +42,8 @@ BiterExtermination.OnUpdatedItems = function()
                 shopDisplayDescription = {"technology-description.biter_extermination-exterminate_biters"},
                 picture = "technology/biter_extermination-exterminate_biters",
                 price = global.biterExtermination.capsuleCost,
-                item = "biter_extermination-exterminate_biters"
+                item = "biter_extermination-exterminate_biters",
+                quantity = 1
             }
         global.shop.items[itemName] = itemDetails
     end

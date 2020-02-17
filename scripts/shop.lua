@@ -185,7 +185,7 @@ Shop.ItemDeliveryScheduledEvent = function(eventData)
     for itemName, quantity in pairs(eventData.data) do
         local itemDetails = global.shop.items[itemName]
         if itemDetails ~= nil then
-            entityItemsPurchased[itemDetails.item] = quantity
+            entityItemsPurchased[itemDetails.item] = quantity * itemDetails.quantity
         end
     end
 

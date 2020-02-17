@@ -1,5 +1,4 @@
 Next:
-	- Change construciton robots to be brought in groups of 10 and have the back end code to support quantity and localised text modifications.
 	- Double clicking an item in the list adds 1 straigh to the basket as well as selecting it in the details pane. - If double clicking can be detected???
 	- Vehicles and rail item option groups
 	- add weapons (including nukes) option
