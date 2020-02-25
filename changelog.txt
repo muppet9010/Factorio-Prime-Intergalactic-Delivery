@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 18.0.1
+Date: 2020-02-25
+  Features:
+  Changes:
+    - Add remote interface to get the payment chest for other mods to put coins in to it.
+  Bugfixes:
+  Info:
+---------------------------------------------------------------------------------------------------
 Version: 18.0.0
 Date: 2020-02-19
   Features:

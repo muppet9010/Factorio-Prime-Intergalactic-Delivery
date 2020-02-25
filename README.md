@@ -21,7 +21,7 @@ Details
     - When clicking on an item in the product catalogue hold Shift to add it straight to the shopping basket, rather than just to show its details.
 
 
-Other Mod Integrations
+Integrations To Other Mods
 --------------------
 
 - Item Deliver Pod:
@@ -32,6 +32,28 @@ Other Mod Integrations
     - Mod options to set the items starting cost and level cost multiplier.
 - Biter Extermination:
     - Will add an item for buying a Biter Extermination gas capsule. Advised to set the technologies cost to 0 to disable its research option, but won't cause any issues if not.
+
+
+Remote Interface For Other Mods
+-------------
+
+- Get the payment chest entity. Useful for putting things like coins in it.
+    - code: `remote.call("prime_intergalactic_delivery", "get_payment_chest")`
+    - returns: a reference to the payment chest entity or `nil` if it doesn't exist (shuld only happen when the mod is first loading)
+
+
+Muppet Coin Based Mod Collection
+------------------
+
+This mod is part of my collection of mods that use the vanilla Factorio coins. They are designed to work togeather or seperately as required. You can also mix with other peoples mods that use vanilla Factorio coins.
+
+- Prime Intergalactic Delivery: a market to buy items for coins.
+- Item Delivery Pod: a crashing spaceship that can bring items to the map with an explosive delivery.
+- Coin Generation: a mod with a variety of ways for players and streamers to generate/obtain coins.
+- Streamlabs RCON Integration: an external tool that lets streamers automatically trigger ingame actions from Streamlabs: https://github.com/muppet9010/Streamlabs-Rcon-Integration
+
+A numebr of my other mods are designed for streamers or have features to make them streamer friendly.
+
 
 Random Notes
 -------------

@@ -13,6 +13,7 @@ Facility.CreateGlobals = function()
 end
 
 Facility.OnLoad = function()
+    remote.add_interface("prime_intergalactic_delivery", {get_payment_chest = Facility.RemoteReturnPaymentChest})
 end
 
 Facility.OnStartup = function()
@@ -100,6 +101,10 @@ Facility.CreateDeliveryChestEntity = function()
     entity.destructible = false
     global.facility.deliveryChest = entity
     return true
+end
+
+Facility.RemoteReturnPaymentChest = function()
+    return global.facility.paymentChest
 end
 
 return Facility
