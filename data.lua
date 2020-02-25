@@ -1,0 +1,7 @@
+require("utility/style-data")
+require("prototypes/facility")
+require("prototypes/coin")
+require("prototypes/gui-icons")
+require("prototypes/software")
+require("prototypes/blocked-recipes")
+require("prototypes/recruit-team-member")

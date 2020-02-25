@@ -1,0 +1,16 @@
+{
+    "name": "prime_intergalactic_delivery",
+    "version": "18.0.0",
+    "title": "Prime Intergalactic Delivery",
+    "author": "Muppet9010",
+    "contact": "",
+    "homepage": "https://mods.factorio.com/mod/prime_intergalactic_delivery",
+    "factorio_version": "0.18",
+    "dependencies": [
+        "base >= 0.18",
+        "? item_delivery_pod",
+        "? biter_extermination",
+        "? muppet_streamer"
+    ],
+    "description": "A shopping point for getting those personal items with coins"
+}
