@@ -19,14 +19,14 @@ data:extend(
         {
             name = "prime_intergalactic_delivery-shop_personal_equipment_block_crafting",
             type = "bool-setting",
-            default_value = true,
+            default_value = false,
             setting_type = "startup",
             order = "5101"
         },
         {
             name = "prime_intergalactic_delivery-shop_infrastructure_block_crafting",
             type = "bool-setting",
-            default_value = true,
+            default_value = false,
             setting_type = "startup",
             order = "5102"
         }
