@@ -34,6 +34,8 @@ ShopGui.OnLoad = function()
     GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.ChangeBasketQuantityAction", ShopGui.ChangeBasketQuantityAction)
     Events.RegisterHandler(defines.events.on_player_died, "ShopGui.OnPlayerDied", ShopGui.OnPlayerDied)
     GuiActionsClosed.LinkGuiClosedActionNameToFunction("ShopGui.OnGuiTypeClosed", ShopGui.OnGuiTypeClosed)
+    GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.OpenHelptAction", ShopGui.OpenHelptAction)
+    GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.CloseHelptAction", ShopGui.CloseHelptAction)
 end
 
 ShopGui.RegisterMarketForOpened = function(marketEntity)
@@ -69,6 +71,7 @@ ShopGui.CloseGui = function(playerIndex)
     end
     rendering.destroy(global.shopGui.guiOpenShopText)
     GuiUtil.DestroyElementInPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiMain", "frame")
+    ShopGui.CloseHelptGui(playerIndex)
 end
 
 ShopGui.OnPlayerLeftGame = function(event)
@@ -158,6 +161,15 @@ ShopGui.CreateGuiStructure = function(player)
                             styling = {horizontal_align = "right", top_margin = 4},
                             children = {
                                 {
+                                    name = "shopGuiOpenHelp",
+                                    type = "button",
+                                    style = "muppet_button_text_small_bold_frame_paddingNone",
+                                    styling = {},
+                                    caption = "self",
+                                    registerClick = {actionName = "ShopGui.OpenHelptAction"},
+                                    enabled = true
+                                },
+                                {
                                     name = "shopGuiBasketEmpty",
                                     type = "button",
                                     style = "muppet_button_text_small_frame_paddingNone",
@@ -180,9 +192,11 @@ ShopGui.CreateGuiStructure = function(player)
                     }
                 },
                 {
+                    name = "shopGuiSections",
                     type = "flow",
                     direction = "horizontal",
                     style = "muppet_flow_horizontal",
+                    storeName = "ShopGui",
                     children = {
                         {
                             type = "frame",
@@ -726,6 +740,107 @@ ShopGui.EmptyBasketAction = function(actionData)
     global.shopGui.shoppingBasket = {}
     global.shopGui.currentSoftwareLevelOffered = {}
     ShopGui.UpdateShoppingBasket(actionData.playerIndex)
+end
+
+ShopGui.OpenHelptAction = function(actionData)
+    if GuiUtil.GetElementFromPlayersReferenceStorage(actionData.playerIndex, "ShopGui", "shopGuiHelpMain", "frame") ~= nil then
+        return
+    end
+    local parent = GuiUtil.GetElementFromPlayersReferenceStorage(actionData.playerIndex, "ShopGui", "shopGuiSections", "flow")
+    GuiUtil.AddElement(
+        {
+            parent = parent,
+            name = "shopGuiHelpMain",
+            type = "frame",
+            direction = "vertical",
+            style = "muppet_frame_content_shadowRisen_marginTL_paddingBR",
+            styling = {width = 300},
+            storeName = "ShopGui",
+            children = {
+                {
+                    type = "flow",
+                    direction = "vertical",
+                    style = "muppet_flow_vertical_marginTL",
+                    children = {
+                        {
+                            name = "shopGuiHelpButtonsTitle",
+                            type = "label",
+                            style = "muppet_label_heading_small_semibold",
+                            caption = {"self"}
+                        },
+                        {
+                            name = "shopGuiHelpButtonsDescription1",
+                            type = "label",
+                            style = "muppet_label_text_small",
+                            caption = {"self"}
+                        },
+                        {
+                            name = "shopGuiHelpButtonsDescription2",
+                            type = "label",
+                            style = "muppet_label_text_small",
+                            styling = {top_margin = 4},
+                            caption = {"self"}
+                        },
+                        {
+                            name = "shopGuiHelpButtonsDescription3",
+                            type = "label",
+                            style = "muppet_label_text_small",
+                            styling = {top_margin = 4},
+                            caption = {"self"}
+                        },
+                        {
+                            type = "line",
+                            direction = "horizontal",
+                            style = "line",
+                            styling = {horizontally_stretchable = true, top_margin = 4, bottom_margin = 4}
+                        },
+                        {
+                            name = "shopGuiHelpCoinsTitle",
+                            type = "label",
+                            style = "muppet_label_heading_small_semibold",
+                            caption = {"self"}
+                        },
+                        {
+                            name = "shopGuiHelpCoinsDescription",
+                            type = "label",
+                            style = "muppet_label_text_small",
+                            caption = {"self"}
+                        },
+                        {
+                            type = "line",
+                            direction = "horizontal",
+                            style = "line",
+                            styling = {horizontally_stretchable = true, top_margin = 4, bottom_margin = 4}
+                        },
+                        {
+                            type = "flow",
+                            direction = "vertical",
+                            style = "muppet_flow_vertical",
+                            styling = {vertical_align = "bottom", horizontal_align = "center", horizontally_stretchable = true, vertically_stretchable = true},
+                            children = {
+                                {
+                                    name = "shopGuiCloseHelp",
+                                    type = "button",
+                                    style = "muppet_button_text_small_bold",
+                                    caption = "self",
+                                    storeName = "ShopGui",
+                                    registerClick = {actionName = "ShopGui.CloseHelptAction"}
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    )
+end
+
+ShopGui.CloseHelptAction = function(actionData)
+    ShopGui.CloseHelptGui(actionData.playerIndex)
+end
+
+ShopGui.CloseHelptGui = function(playerIndex)
+    GuiUtil.DestroyElementInPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiHelpMain", "frame")
 end
 
 ShopGui.GetDeliveryEtaLocalisedString = function()
