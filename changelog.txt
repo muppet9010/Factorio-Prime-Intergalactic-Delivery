@@ -1,8 +1,8 @@
 ---------------------------------------------------------------------------------------------------
 Version: 18.0.1
-Date: 2020-02-25
+Date: 2020-02-26
   Features:
-	- Add a clickable HELP gui to the shop.
+    - Add a clickable HELP gui to the shop.
   Changes:
     - Add remote interface to get the payment chest for other mods to put coins in to it.
   Bugfixes:
