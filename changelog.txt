@@ -3,6 +3,7 @@ Version: 18.0.2
 Date: 2020-03-16
   Features:
     - Added player health bonus software.
+    - Added optional player whitelist for the shop.
   Changes:
   Bugfixes:
     - Shop prices are rounded down so they match on internal cost and display. As the totoal coins taken was always rounded down.

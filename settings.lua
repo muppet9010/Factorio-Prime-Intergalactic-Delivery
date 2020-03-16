@@ -126,6 +126,14 @@ data:extend(
             minimum_value = 0,
             setting_type = "runtime-global",
             order = "5702"
+        },
+        {
+            name = "prime_intergalactic_delivery-shop_player_whitelist",
+            type = "string-setting",
+            default_value = "",
+            allow_blank = true,
+            setting_type = "runtime-global",
+            order = "5801"
         }
     }
 )

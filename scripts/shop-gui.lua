@@ -8,6 +8,7 @@ local Events = require("utility/events")
 local Colors = require("utility/colors")
 local Logging = require("utility/logging")
 local Utils = require("utility/utils")
+local Commands = require("utility/commands")
 
 local coinIconText = " [img=item/coin]"
 
@@ -19,9 +20,11 @@ ShopGui.CreateGlobals = function()
     global.shopGui.shoppingBasket = global.shopGui.shoppingBasket or {}
     global.shopGui.currentSoftwareLevelOffered = global.shopGui.currentSoftwareLevelOffered or {}
     global.shopGui.currentPurchaseId = global.shopGui.currentPurchaseId or math.random(117, 462)
+    global.shopGui.playerWhitelist = global.shopGui.playerWhitelist or {}
 end
 
 ShopGui.OnLoad = function()
+    Events.RegisterHandler(defines.events.on_runtime_mod_setting_changed, "ShopGui.OnSettingChanged", ShopGui.OnSettingChanged)
     Interfaces.RegisterInterface("ShopGui.RegisterMarketForOpened", ShopGui.RegisterMarketForOpened)
     GuiActionsOpened.LinkGuiOpenedActionNameToFunction("ShopGui.MarketEntityClicked", ShopGui.MarketEntityClicked)
     GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.CloseGuiClickAction", ShopGui.CloseGuiClickAction)
@@ -38,6 +41,16 @@ ShopGui.OnLoad = function()
     GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.CloseHelptAction", ShopGui.CloseHelptAction)
 end
 
+ShopGui.OnSettingChanged = function(eventData)
+    local settingName = eventData.setting
+
+    if settingName == nil or settingName == "prime_intergalactic_delivery-shop_player_whitelist" then
+        local settingValue = settings.global["prime_intergalactic_delivery-shop_player_whitelist"].value
+        local playerTable = Commands.GetArgumentsFromCommand(settingValue)
+        global.shopGui.playerWhitelist = playerTable
+    end
+end
+
 ShopGui.RegisterMarketForOpened = function(marketEntity)
     GuiActionsOpened.RegisterEntityForGuiOpenedAction(marketEntity, "ShopGui.MarketEntityClicked")
 end
@@ -45,6 +58,10 @@ end
 ShopGui.MarketEntityClicked = function(actionData)
     local player = game.get_player(actionData.playerIndex)
     player.opened = nil --close the market GUI
+    if #global.shopGui.playerWhitelist > 0 and Utils.GetTableKeyWithValue(global.shopGui.playerWhitelist, player.name) == nil then
+        rendering.draw_text {text = {"rendering-text.prime_intergalactic_delivery-player_not_on_whitelist"}, surface = global.surface, target = player.character, color = Colors.white, alignment = "center", players = {player}, time_to_live = 300}
+        return
+    end
     if global.shopGui.guiOpenPlayerIndex then
         return
     end
