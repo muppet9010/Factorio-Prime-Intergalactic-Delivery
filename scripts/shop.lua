@@ -110,13 +110,13 @@ Shop.UpdateItems = function()
 
     for itemName, itemDetails in pairs(Utils.DeepCopy(ShopRawItemsList)) do
         if itemDetails.type == "personal" and global.shop.personalEquipmentCostMultiplier > 0 then
-            itemDetails.price = itemDetails.price * global.shop.personalEquipmentCostMultiplier
+            itemDetails.price = math.floor(itemDetails.price * global.shop.personalEquipmentCostMultiplier)
             global.shop.items[itemName] = itemDetails
         elseif itemDetails.type == "infrastructure" and global.shop.infrastructureCostMultiplier > 0 then
-            itemDetails.price = itemDetails.price * global.shop.infrastructureCostMultiplier
+            itemDetails.price = math.floor(itemDetails.price * global.shop.infrastructureCostMultiplier)
             global.shop.items[itemName] = itemDetails
         elseif itemDetails.type == "weapon" and global.shop.weaponCostMultiplier > 0 then
-            itemDetails.price = itemDetails.price * global.shop.weaponCostMultiplier
+            itemDetails.price = math.floor(itemDetails.price * global.shop.weaponCostMultiplier)
             global.shop.items[itemName] = itemDetails
         elseif itemDetails.type == "software" and global.shop.softwareStartCost > 0 then
             global.shop.items[itemName] = itemDetails
@@ -140,7 +140,7 @@ end
 
 Shop.CalculateSoftwarePrice = function(level)
     local currentMultiplier = global.shop.softwareLevelCostMultiplier ^ (level - 1)
-    local price = global.shop.softwareStartCost * currentMultiplier
+    local price = math.floor(global.shop.softwareStartCost * currentMultiplier)
     return price
 end
 

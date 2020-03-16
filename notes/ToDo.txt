@@ -1,5 +1,4 @@
 Next:
-    - floor the shop prices shown as the game floors the final costs
 
 Future:
 	- if you walk too far away from the market the window should close.
