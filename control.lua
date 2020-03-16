@@ -50,6 +50,8 @@ script.on_load(OnLoad)
 Events.RegisterEvent(defines.events.on_player_left_game)
 Events.RegisterEvent(defines.events.on_player_died)
 Events.RegisterEvent(defines.events.on_player_used_capsule)
+Events.RegisterEvent(defines.events.on_player_respawned)
+Events.RegisterEvent(defines.events.on_player_created)
 Events.RegisterEvent("Shop.UpdatingItems")
 
 GuiActionsClick.MonitorGuiClickActions()

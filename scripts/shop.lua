@@ -45,6 +45,8 @@ Shop.OnLoad = function()
     Interfaces.RegisterInterface("Shop.RecordSoftwareStartingLevels", Shop.RecordSoftwareStartingLevels)
     Interfaces.RegisterInterface("Shop.UpdateItems", Shop.UpdateItems)
     Commands.Register("prime_intergalactic_delivery_export_orders", {"api-description.prime_intergalactic_delivery_export_orders"}, Shop.ExportOrders, false)
+    Events.RegisterHandler(defines.events.on_player_respawned, "Shop.OnPlayerRespawned", Shop.OnPlayerRespawned)
+    Events.RegisterHandler(defines.events.on_player_created, "Shop.OnPlayerRespawned", Shop.OnPlayerRespawned)
 end
 
 Shop.OnStartup = function()
@@ -106,7 +108,7 @@ end
 Shop.UpdateItems = function()
     global.shop.items = {}
 
-    for itemName, itemDetails in pairs(ShopRawItemsList.Get()) do
+    for itemName, itemDetails in pairs(Utils.DeepCopy(ShopRawItemsList)) do
         if itemDetails.type == "personal" and global.shop.personalEquipmentCostMultiplier > 0 then
             itemDetails.price = itemDetails.price * global.shop.personalEquipmentCostMultiplier
             global.shop.items[itemName] = itemDetails
@@ -247,6 +249,11 @@ end
 
 Shop.ExportOrders = function(commandData)
     game.write_file("Prime_Intergalactic_Delivery_Orders.txt", Utils.TableContentsToJSON(global.shop.ordersMade), false, commandData.player_index)
+end
+
+Shop.OnPlayerRespawned = function(event)
+    local playerIndex = event.player_index
+    ShopRawItemsList["softwarePlayerHealth"].bonusEffect(false, playerIndex)
 end
 
 return Shop
