@@ -8,6 +8,7 @@ Date: 2020-03-16
   Bugfixes:
     - Shop prices are rounded down so they match on internal cost and display. As the totoal coins taken was always rounded down.
   Info:
+    - Requires Factorio 0.18.13 or above
 ---------------------------------------------------------------------------------------------------
 Version: 18.0.1
 Date: 2020-02-26

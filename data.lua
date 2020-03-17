@@ -1,4 +1,4 @@
-require("utility/style-data")
+require("utility/style-data").GeneratePrototypes()
 require("prototypes/facility")
 require("prototypes/coin")
 require("prototypes/gui-icons")
