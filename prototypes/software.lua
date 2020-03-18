@@ -52,6 +52,23 @@ data:extend(
             capsule_action = Shared.capsuleAction
         },
         {
+            type = "capsule",
+            name = "prime_intergalactic_delivery-software_player_health",
+            icon = Constants.AssetModName .. "/graphics/icons/software_player_health.png",
+            icon_size = 128,
+            icon_mipmaps = 1,
+            flags = {"hidden"},
+            subgroup = "other",
+            order = "z",
+            stack_size = 1,
+            capsule_action = Shared.capsuleAction
+        }
+    }
+)
+
+data:extend(
+    {
+        {
             type = "optimized-particle",
             name = "prime_intergalactic_delivery-software_applied_sparks",
             life_time = 24,

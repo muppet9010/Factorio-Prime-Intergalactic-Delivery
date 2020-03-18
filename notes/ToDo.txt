@@ -1,6 +1,5 @@
 Next:
 
-
 Future:
 	- if you walk too far away from the market the window should close.
 	- openable gui to see upgrades got clealy. while many effects will be shown in the bonus tab, they will be mixed in with other researches. being at the market could see next skill levels and therefor know current, but not as smooth. shortcut item and shortcut key

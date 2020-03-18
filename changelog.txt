@@ -1,4 +1,16 @@
 ---------------------------------------------------------------------------------------------------
+Version: 18.0.2
+Date: 2020-03-18
+  Features:
+    - Added player health bonus software.
+    - Added optional player whitelist for the shop.
+  Changes:
+  Bugfixes:
+    - Shop prices are rounded down so they match on internal cost and display. As the totoal coins taken was always rounded down.
+	- Updated to use verson controlled style prototypes to avoid clashes with other mods using different versions of my utility library.
+  Info:
+    - Requires Factorio 0.18.13 or above
+---------------------------------------------------------------------------------------------------
 Version: 18.0.1
 Date: 2020-02-26
   Features:

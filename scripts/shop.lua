@@ -45,6 +45,8 @@ Shop.OnLoad = function()
     Interfaces.RegisterInterface("Shop.RecordSoftwareStartingLevels", Shop.RecordSoftwareStartingLevels)
     Interfaces.RegisterInterface("Shop.UpdateItems", Shop.UpdateItems)
     Commands.Register("prime_intergalactic_delivery_export_orders", {"api-description.prime_intergalactic_delivery_export_orders"}, Shop.ExportOrders, false)
+    Events.RegisterHandler(defines.events.on_player_respawned, "Shop.OnPlayerRespawned", Shop.OnPlayerRespawned)
+    Events.RegisterHandler(defines.events.on_player_created, "Shop.OnPlayerRespawned", Shop.OnPlayerRespawned)
 end
 
 Shop.OnStartup = function()
@@ -106,15 +108,15 @@ end
 Shop.UpdateItems = function()
     global.shop.items = {}
 
-    for itemName, itemDetails in pairs(ShopRawItemsList.Get()) do
+    for itemName, itemDetails in pairs(Utils.DeepCopy(ShopRawItemsList)) do
         if itemDetails.type == "personal" and global.shop.personalEquipmentCostMultiplier > 0 then
-            itemDetails.price = itemDetails.price * global.shop.personalEquipmentCostMultiplier
+            itemDetails.price = math.floor(itemDetails.price * global.shop.personalEquipmentCostMultiplier)
             global.shop.items[itemName] = itemDetails
         elseif itemDetails.type == "infrastructure" and global.shop.infrastructureCostMultiplier > 0 then
-            itemDetails.price = itemDetails.price * global.shop.infrastructureCostMultiplier
+            itemDetails.price = math.floor(itemDetails.price * global.shop.infrastructureCostMultiplier)
             global.shop.items[itemName] = itemDetails
         elseif itemDetails.type == "weapon" and global.shop.weaponCostMultiplier > 0 then
-            itemDetails.price = itemDetails.price * global.shop.weaponCostMultiplier
+            itemDetails.price = math.floor(itemDetails.price * global.shop.weaponCostMultiplier)
             global.shop.items[itemName] = itemDetails
         elseif itemDetails.type == "software" and global.shop.softwareStartCost > 0 then
             global.shop.items[itemName] = itemDetails
@@ -138,7 +140,7 @@ end
 
 Shop.CalculateSoftwarePrice = function(level)
     local currentMultiplier = global.shop.softwareLevelCostMultiplier ^ (level - 1)
-    local price = global.shop.softwareStartCost * currentMultiplier
+    local price = math.floor(global.shop.softwareStartCost * currentMultiplier)
     return price
 end
 
@@ -247,6 +249,11 @@ end
 
 Shop.ExportOrders = function(commandData)
     game.write_file("Prime_Intergalactic_Delivery_Orders.txt", Utils.TableContentsToJSON(global.shop.ordersMade), false, commandData.player_index)
+end
+
+Shop.OnPlayerRespawned = function(event)
+    local playerIndex = event.player_index
+    ShopRawItemsList["softwarePlayerHealth"].bonusEffect(false, playerIndex)
 end
 
 return Shop

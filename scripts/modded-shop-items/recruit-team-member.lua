@@ -73,7 +73,7 @@ end
 
 RecruitTeamMember.CalculateSoftwarePrice = function(level)
     local currentMultiplier = global.recruitTeamMember.shopLevelCostMultiplier ^ (level - 1)
-    local price = global.recruitTeamMember.shopStartCost * currentMultiplier
+    local price = math.floor(global.recruitTeamMember.shopStartCost * currentMultiplier)
     return price
 end
 
