@@ -259,12 +259,9 @@ local ShopRawItemsList = {
             end
             if playerIndex == nil then
                 for _, player in pairs(game.players) do
-                    if player.controller_type == defines.controllers.character then
-                        --player.controller_type check is a work around for: https://forums.factorio.com/viewtopic.php?f=7&t=82554
-                        local characters = player.get_associated_characters()
-                        for _, character in pairs(characters) do
-                            character.character_health_bonus = modifier
-                        end
+                    local characters = player.get_associated_characters()
+                    for _, character in pairs(characters) do
+                        character.character_health_bonus = modifier
                     end
                 end
             else
