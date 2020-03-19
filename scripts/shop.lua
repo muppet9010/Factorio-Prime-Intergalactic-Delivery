@@ -77,9 +77,7 @@ Shop.OnSettingChanged = function(eventData)
         updateItems = true
     end
     if settingName == nil or settingName == "prime_intergalactic_delivery-shop_software_effect_level_bonus_percent" then
-        if Utils.GetTableNonNilLength(global.shop.items) == 0 then
-            Shop.UpdateItems()
-        end
+        Shop.UpdateItems() -- have to call it to force shop bonus functions to update prior to applying.
         Shop.ApplyCoreBonusEffects(true)
         global.shop.softwareLevelEffectBonus = tonumber(settings.global["prime_intergalactic_delivery-shop_software_effect_level_bonus_percent"].value)
         Shop.ApplyCoreBonusEffects(false)

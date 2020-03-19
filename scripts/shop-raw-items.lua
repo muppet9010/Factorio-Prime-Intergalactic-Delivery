@@ -255,11 +255,17 @@ local ShopRawItemsList = {
         bonusEffect = function(removing, playerIndex)
             local modifier = global.shop.softwareLevelsApplied["softwarePlayerHealth"] * (250 / global.shop.softwareLevelEffectBonus)
             if removing then
-                modifier = 0
+                modifier = 0 - modifier
             end
             if playerIndex == nil then
                 for _, player in pairs(game.players) do
-                    player.character_health_bonus = modifier
+                    if player.controller_type == defines.controllers.character then
+                        --player.controller_type check is a work around for: https://forums.factorio.com/viewtopic.php?f=7&t=82554
+                        local characters = player.get_associated_characters()
+                        for _, character in pairs(characters) do
+                            character.character_health_bonus = modifier
+                        end
+                    end
                 end
             else
                 game.get_player(playerIndex).character_health_bonus = modifier
