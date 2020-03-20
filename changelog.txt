@@ -7,6 +7,7 @@ Date: 2020-03-19
     - Fix player health bonus error when a player had no character - base game API bug.
     - Fix player health bonus being subtracted to not wipe out any other mods setting of health bonus.
     - Fix error on removal of Biter Extermintion mod when the shop GUI was next opened.
+    - Shop will be placed regardless of terrian if no where near spawn can be found.
   Info:
 ---------------------------------------------------------------------------------------------------
 Version: 18.0.2

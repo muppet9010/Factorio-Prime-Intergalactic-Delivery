@@ -53,10 +53,10 @@ Facility.CreateShopEntity = function()
         x = math.random(-20, 20),
         y = math.random(-20, 20)
     }
-    local pos = Utils.GetValidPositionForEntityNearPosition("prime_intergalactic_delivery-shop_building", global.surface, nearSpawnRandomSpot, 20, 5)
+    local pos = global.surface.find_non_colliding_position("prime_intergalactic_delivery-shop_building", nearSpawnRandomSpot, 100, 1, true)
     if pos == nil then
-        Logging.Log("ERROR: No valid position for Shop at spawn found")
-        return false
+        Logging.Log("ERROR: No valid position for Shop at spawn found - just stuck it down regardless")
+        pos = nearSpawnRandomSpot
     end
     local shopBuildingEntity = global.surface.create_entity {name = "prime_intergalactic_delivery-shop_building", position = pos, force = global.force, raise_built = true}
     if shopBuildingEntity == nil then
