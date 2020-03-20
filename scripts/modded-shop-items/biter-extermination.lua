@@ -33,6 +33,10 @@ BiterExtermination.OnSettingChanged = function(event)
 end
 
 BiterExtermination.OnUpdatedItems = function()
+    if game.active_mods["biter_extermination"] == nil then
+        return
+    end
+
     if global.biterExtermination.capsuleCost > 0 then
         local itemName, itemDetails =
             "exterminateBiters",
