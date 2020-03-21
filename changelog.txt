@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 18.0.4
+Date: 2020-03-21
+  Features:
+  Changes:
+  Bugfixes:
+    - On mod update the Shop Gui will be closed cleanly to allow any update to go through.
+  Info:
+---------------------------------------------------------------------------------------------------
 Version: 18.0.3
 Date: 2020-03-19
   Features:

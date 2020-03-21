@@ -41,6 +41,7 @@ local function OnStartup()
     ItemDeliveryPod.OnStartup()
     Facility.OnStartup()
     Shop.OnStartup()
+    ShopGui.OnStartup()
 end
 
 script.on_init(OnStartup)

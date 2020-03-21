@@ -37,8 +37,8 @@ ShopGui.OnLoad = function()
     GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.ChangeBasketQuantityAction", ShopGui.ChangeBasketQuantityAction)
     Events.RegisterHandler(defines.events.on_player_died, "ShopGui.OnPlayerDied", ShopGui.OnPlayerDied)
     GuiActionsClosed.LinkGuiClosedActionNameToFunction("ShopGui.OnGuiTypeClosed", ShopGui.OnGuiTypeClosed)
-    GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.OpenHelptAction", ShopGui.OpenHelptAction)
-    GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.CloseHelptAction", ShopGui.CloseHelptAction)
+    GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.OpenHelpAction", ShopGui.OpenHelpAction)
+    GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.CloseHelpAction", ShopGui.CloseHelpAction)
 end
 
 ShopGui.OnSettingChanged = function(eventData)
@@ -48,6 +48,12 @@ ShopGui.OnSettingChanged = function(eventData)
         local settingValue = settings.global["prime_intergalactic_delivery-shop_player_whitelist"].value
         local playerTable = Commands.GetArgumentsFromCommand(settingValue)
         global.shopGui.playerWhitelist = playerTable
+    end
+end
+
+ShopGui.OnStartup = function()
+    if global.shopGui.guiOpenPlayerIndex ~= nil then
+        ShopGui.CloseGui(global.shopGui.guiOpenPlayerIndex)
     end
 end
 
@@ -81,14 +87,16 @@ end
 
 ShopGui.CloseGui = function(playerIndex)
     local player = game.get_player(playerIndex)
-    player.opened = nil --close our player GUI
+    if player ~= nil then
+        player.opened = nil --close our player GUI
+    end
     global.shopGui.guiOpenPlayerIndex = nil
     if global.shopGui.guiOpenPlayerText ~= nil then
         rendering.destroy(global.shopGui.guiOpenPlayerText)
     end
     rendering.destroy(global.shopGui.guiOpenShopText)
     GuiUtil.DestroyElementInPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiMain", "frame")
-    ShopGui.CloseHelptGui(playerIndex)
+    ShopGui.CloseHelpGui(playerIndex)
 end
 
 ShopGui.OnPlayerLeftGame = function(event)
@@ -183,7 +191,7 @@ ShopGui.CreateGuiStructure = function(player)
                                     style = "muppet_button_text_small_bold_frame_paddingNone",
                                     styling = {},
                                     caption = "self",
-                                    registerClick = {actionName = "ShopGui.OpenHelptAction"},
+                                    registerClick = {actionName = "ShopGui.OpenHelpAction"},
                                     enabled = true
                                 },
                                 {
@@ -759,7 +767,7 @@ ShopGui.EmptyBasketAction = function(actionData)
     ShopGui.UpdateShoppingBasket(actionData.playerIndex)
 end
 
-ShopGui.OpenHelptAction = function(actionData)
+ShopGui.OpenHelpAction = function(actionData)
     if GuiUtil.GetElementFromPlayersReferenceStorage(actionData.playerIndex, "ShopGui", "shopGuiHelpMain", "frame") ~= nil then
         return
     end
@@ -841,7 +849,7 @@ ShopGui.OpenHelptAction = function(actionData)
                                     style = "muppet_button_text_small_bold",
                                     caption = "self",
                                     storeName = "ShopGui",
-                                    registerClick = {actionName = "ShopGui.CloseHelptAction"}
+                                    registerClick = {actionName = "ShopGui.CloseHelpAction"}
                                 }
                             }
                         }
@@ -852,11 +860,11 @@ ShopGui.OpenHelptAction = function(actionData)
     )
 end
 
-ShopGui.CloseHelptAction = function(actionData)
-    ShopGui.CloseHelptGui(actionData.playerIndex)
+ShopGui.CloseHelpAction = function(actionData)
+    ShopGui.CloseHelpGui(actionData.playerIndex)
 end
 
-ShopGui.CloseHelptGui = function(playerIndex)
+ShopGui.CloseHelpGui = function(playerIndex)
     GuiUtil.DestroyElementInPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiHelpMain", "frame")
 end
 
