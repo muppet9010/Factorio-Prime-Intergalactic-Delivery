@@ -37,8 +37,8 @@ ShopGui.OnLoad = function()
     GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.ChangeBasketQuantityAction", ShopGui.ChangeBasketQuantityAction)
     Events.RegisterHandler(defines.events.on_player_died, "ShopGui.OnPlayerDied", ShopGui.OnPlayerDied)
     GuiActionsClosed.LinkGuiClosedActionNameToFunction("ShopGui.OnGuiTypeClosed", ShopGui.OnGuiTypeClosed)
-    GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.OpenHelptAction", ShopGui.OpenHelptAction)
-    GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.CloseHelptAction", ShopGui.CloseHelptAction)
+    GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.OpenHelpAction", ShopGui.OpenHelpAction)
+    GuiActionsClick.LinkGuiClickActionNameToFunction("ShopGui.CloseHelpAction", ShopGui.CloseHelpAction)
 end
 
 ShopGui.OnSettingChanged = function(eventData)
@@ -48,6 +48,12 @@ ShopGui.OnSettingChanged = function(eventData)
         local settingValue = settings.global["prime_intergalactic_delivery-shop_player_whitelist"].value
         local playerTable = Commands.GetArgumentsFromCommand(settingValue)
         global.shopGui.playerWhitelist = playerTable
+    end
+end
+
+ShopGui.OnStartup = function()
+    if global.shopGui.guiOpenPlayerIndex ~= nil then
+        ShopGui.CloseGui(global.shopGui.guiOpenPlayerIndex)
     end
 end
 
@@ -81,14 +87,16 @@ end
 
 ShopGui.CloseGui = function(playerIndex)
     local player = game.get_player(playerIndex)
-    player.opened = nil --close our player GUI
+    if player ~= nil then
+        player.opened = nil --close our player GUI
+    end
     global.shopGui.guiOpenPlayerIndex = nil
     if global.shopGui.guiOpenPlayerText ~= nil then
         rendering.destroy(global.shopGui.guiOpenPlayerText)
     end
     rendering.destroy(global.shopGui.guiOpenShopText)
     GuiUtil.DestroyElementInPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiMain", "frame")
-    ShopGui.CloseHelptGui(playerIndex)
+    ShopGui.CloseHelpGui(playerIndex)
 end
 
 ShopGui.OnPlayerLeftGame = function(event)
@@ -121,13 +129,7 @@ ShopGui.PlayerOpeningGui = function(player)
     end
     global.shopGui.guiOpenShopText = rendering.draw_text {text = {"rendering-text.prime_intergalactic_delivery-shop_gui_in_use"}, surface = global.surface, target = global.facility.shop, color = Colors.white, alignment = "center"}
 
-    if Utils.GetTableNonNilLength(global.shopGui.currentSoftwareLevelOffered) == 0 then
-        for itemName, itemDetails in pairs(global.shop.items) do
-            if itemDetails.type == "software" then
-                global.shopGui.currentSoftwareLevelOffered[itemName] = global.shop.softwareLevelsPurchased[itemName] + 1
-            end
-        end
-    end
+    ShopGui.PopulateCurrentSoftwareLevelOffered()
 
     ShopGui.CreateGuiStructure(player)
     ShopGui.PopulateItemsList(player.index)
@@ -183,7 +185,7 @@ ShopGui.CreateGuiStructure = function(player)
                                     style = "muppet_button_text_small_bold_frame_paddingNone",
                                     styling = {},
                                     caption = "self",
-                                    registerClick = {actionName = "ShopGui.OpenHelptAction"},
+                                    registerClick = {actionName = "ShopGui.OpenHelpAction"},
                                     enabled = true
                                 },
                                 {
@@ -554,23 +556,34 @@ end
 
 ShopGui.UpdateSelectedItemDetails = function(playerIndex, itemName)
     local itemDetails = global.shop.items[itemName]
-    local disabled, titleCaption, priceValue = false
-    if itemDetails.type ~= "software" then
-        titleCaption = itemDetails.shopDisplayName
-        priceValue = itemDetails.price
+    local disabled, titleCaption, priceValue, itemPicture, description, priceCaption = false
+    if itemDetails == nil then
+        titleCaption = " "
+        itemPicture = ""
+        description = " "
+        priceCaption = " "
+        disabled = true
     else
-        local offeredLevel = global.shopGui.currentSoftwareLevelOffered[itemName]
-        titleCaption = {"gui-caption.prime_intergalactic_delivery-shopGuiItemDetailsTitleSoftware", itemDetails.shopDisplayName, offeredLevel}
-        priceValue = Interfaces.Call(itemDetails.priceCalculationInterfaceName, offeredLevel)
-        if offeredLevel > global.shop.softwareMaxLevel then
-            disabled = true
+        itemPicture = itemDetails.picture
+        description = itemDetails.shopDisplayDescription
+        if itemDetails.type ~= "software" then
+            titleCaption = itemDetails.shopDisplayName
+            priceValue = itemDetails.price
+        else
+            local offeredLevel = global.shopGui.currentSoftwareLevelOffered[itemName]
+            titleCaption = {"gui-caption.prime_intergalactic_delivery-shopGuiItemDetailsTitleSoftware", itemDetails.shopDisplayName, offeredLevel}
+            priceValue = Interfaces.Call(itemDetails.priceCalculationInterfaceName, offeredLevel)
+            if offeredLevel > global.shop.softwareMaxLevel then
+                disabled = true
+            end
         end
+        priceCaption = Utils.DisplayNumberPretty(priceValue) .. coinIconText
     end
 
     GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemDetailsTitle", "label", {caption = titleCaption})
-    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemDetailsImage", "sprite", {sprite = itemDetails.picture})
-    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemsDetailsDescription", "label", {caption = itemDetails.shopDisplayDescription})
-    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemDetailsPrice", "label", {caption = Utils.DisplayNumberPretty(priceValue) .. coinIconText})
+    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemDetailsImage", "sprite", {sprite = itemPicture})
+    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemsDetailsDescription", "label", {caption = description})
+    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemDetailsPrice", "label", {caption = priceCaption})
     GuiUtil.UpdateElementFromPlayersReferenceStorage(
         playerIndex,
         "ShopGui",
@@ -756,10 +769,24 @@ end
 ShopGui.EmptyBasketAction = function(actionData)
     global.shopGui.shoppingBasket = {}
     global.shopGui.currentSoftwareLevelOffered = {}
+    ShopGui.PopulateCurrentSoftwareLevelOffered()
+
+    ShopGui.UpdateSelectedItemDetails(actionData.playerIndex, nil)
+    ShopGui.PopulateItemsList(actionData.playerIndex)
     ShopGui.UpdateShoppingBasket(actionData.playerIndex)
 end
 
-ShopGui.OpenHelptAction = function(actionData)
+ShopGui.PopulateCurrentSoftwareLevelOffered = function()
+    if Utils.GetTableNonNilLength(global.shopGui.currentSoftwareLevelOffered) == 0 then
+        for itemName, itemDetails in pairs(global.shop.items) do
+            if itemDetails.type == "software" then
+                global.shopGui.currentSoftwareLevelOffered[itemName] = global.shop.softwareLevelsPurchased[itemName] + 1
+            end
+        end
+    end
+end
+
+ShopGui.OpenHelpAction = function(actionData)
     if GuiUtil.GetElementFromPlayersReferenceStorage(actionData.playerIndex, "ShopGui", "shopGuiHelpMain", "frame") ~= nil then
         return
     end
@@ -841,7 +868,7 @@ ShopGui.OpenHelptAction = function(actionData)
                                     style = "muppet_button_text_small_bold",
                                     caption = "self",
                                     storeName = "ShopGui",
-                                    registerClick = {actionName = "ShopGui.CloseHelptAction"}
+                                    registerClick = {actionName = "ShopGui.CloseHelpAction"}
                                 }
                             }
                         }
@@ -852,11 +879,11 @@ ShopGui.OpenHelptAction = function(actionData)
     )
 end
 
-ShopGui.CloseHelptAction = function(actionData)
-    ShopGui.CloseHelptGui(actionData.playerIndex)
+ShopGui.CloseHelpAction = function(actionData)
+    ShopGui.CloseHelpGui(actionData.playerIndex)
 end
 
-ShopGui.CloseHelptGui = function(playerIndex)
+ShopGui.CloseHelpGui = function(playerIndex)
     GuiUtil.DestroyElementInPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiHelpMain", "frame")
 end
 

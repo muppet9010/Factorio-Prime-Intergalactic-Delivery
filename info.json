@@ -1,13 +1,13 @@
 {
     "name": "prime_intergalactic_delivery",
-    "version": "18.0.3",
+    "version": "18.0.4",
     "title": "Prime Intergalactic Delivery",
     "author": "Muppet9010",
     "contact": "",
     "homepage": "https://mods.factorio.com/mod/prime_intergalactic_delivery",
     "factorio_version": "0.18",
     "dependencies": [
-        "base >= 0.18.13",
+        "base >= 0.18.15",
         "? item_delivery_pod",
         "? biter_extermination",
         "? muppet_streamer"
