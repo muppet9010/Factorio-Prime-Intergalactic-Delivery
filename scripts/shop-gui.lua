@@ -129,13 +129,7 @@ ShopGui.PlayerOpeningGui = function(player)
     end
     global.shopGui.guiOpenShopText = rendering.draw_text {text = {"rendering-text.prime_intergalactic_delivery-shop_gui_in_use"}, surface = global.surface, target = global.facility.shop, color = Colors.white, alignment = "center"}
 
-    if Utils.GetTableNonNilLength(global.shopGui.currentSoftwareLevelOffered) == 0 then
-        for itemName, itemDetails in pairs(global.shop.items) do
-            if itemDetails.type == "software" then
-                global.shopGui.currentSoftwareLevelOffered[itemName] = global.shop.softwareLevelsPurchased[itemName] + 1
-            end
-        end
-    end
+    ShopGui.PopulateCurrentSoftwareLevelOffered()
 
     ShopGui.CreateGuiStructure(player)
     ShopGui.PopulateItemsList(player.index)
@@ -562,23 +556,34 @@ end
 
 ShopGui.UpdateSelectedItemDetails = function(playerIndex, itemName)
     local itemDetails = global.shop.items[itemName]
-    local disabled, titleCaption, priceValue = false
-    if itemDetails.type ~= "software" then
-        titleCaption = itemDetails.shopDisplayName
-        priceValue = itemDetails.price
+    local disabled, titleCaption, priceValue, itemPicture, description, priceCaption = false
+    if itemDetails == nil then
+        titleCaption = " "
+        itemPicture = ""
+        description = " "
+        priceCaption = " "
+        disabled = true
     else
-        local offeredLevel = global.shopGui.currentSoftwareLevelOffered[itemName]
-        titleCaption = {"gui-caption.prime_intergalactic_delivery-shopGuiItemDetailsTitleSoftware", itemDetails.shopDisplayName, offeredLevel}
-        priceValue = Interfaces.Call(itemDetails.priceCalculationInterfaceName, offeredLevel)
-        if offeredLevel > global.shop.softwareMaxLevel then
-            disabled = true
+        itemPicture = itemDetails.picture
+        description = itemDetails.shopDisplayDescription
+        if itemDetails.type ~= "software" then
+            titleCaption = itemDetails.shopDisplayName
+            priceValue = itemDetails.price
+        else
+            local offeredLevel = global.shopGui.currentSoftwareLevelOffered[itemName]
+            titleCaption = {"gui-caption.prime_intergalactic_delivery-shopGuiItemDetailsTitleSoftware", itemDetails.shopDisplayName, offeredLevel}
+            priceValue = Interfaces.Call(itemDetails.priceCalculationInterfaceName, offeredLevel)
+            if offeredLevel > global.shop.softwareMaxLevel then
+                disabled = true
+            end
         end
+        priceCaption = Utils.DisplayNumberPretty(priceValue) .. coinIconText
     end
 
     GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemDetailsTitle", "label", {caption = titleCaption})
-    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemDetailsImage", "sprite", {sprite = itemDetails.picture})
-    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemsDetailsDescription", "label", {caption = itemDetails.shopDisplayDescription})
-    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemDetailsPrice", "label", {caption = Utils.DisplayNumberPretty(priceValue) .. coinIconText})
+    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemDetailsImage", "sprite", {sprite = itemPicture})
+    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemsDetailsDescription", "label", {caption = description})
+    GuiUtil.UpdateElementFromPlayersReferenceStorage(playerIndex, "ShopGui", "shopGuiItemDetailsPrice", "label", {caption = priceCaption})
     GuiUtil.UpdateElementFromPlayersReferenceStorage(
         playerIndex,
         "ShopGui",
@@ -764,7 +769,21 @@ end
 ShopGui.EmptyBasketAction = function(actionData)
     global.shopGui.shoppingBasket = {}
     global.shopGui.currentSoftwareLevelOffered = {}
+    ShopGui.PopulateCurrentSoftwareLevelOffered()
+
+    ShopGui.UpdateSelectedItemDetails(actionData.playerIndex, nil)
+    ShopGui.PopulateItemsList(actionData.playerIndex)
     ShopGui.UpdateShoppingBasket(actionData.playerIndex)
+end
+
+ShopGui.PopulateCurrentSoftwareLevelOffered = function()
+    if Utils.GetTableNonNilLength(global.shopGui.currentSoftwareLevelOffered) == 0 then
+        for itemName, itemDetails in pairs(global.shop.items) do
+            if itemDetails.type == "software" then
+                global.shopGui.currentSoftwareLevelOffered[itemName] = global.shop.softwareLevelsPurchased[itemName] + 1
+            end
+        end
+    end
 end
 
 ShopGui.OpenHelpAction = function(actionData)

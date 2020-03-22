@@ -5,6 +5,8 @@ Date: 2020-03-21
   Changes:
   Bugfixes:
     - On mod update the Shop Gui will be closed cleanly to allow any update to go through.
+    - fix crash with adding software to basket after emptying the basket.
+    - fix shop item details pane not updating after empty basket correctly
   Info:
 ---------------------------------------------------------------------------------------------------
 Version: 18.0.3
