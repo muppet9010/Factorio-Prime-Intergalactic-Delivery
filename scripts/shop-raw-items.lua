@@ -252,21 +252,12 @@ local ShopRawItemsList = {
         quantity = 1,
         priceCalculationInterfaceName = "Shop.CalculateSoftwarePrice",
         bonusEffectType = "core",
-        bonusEffect = function(removing, playerIndex)
+        bonusEffect = function(removing)
             local modifier = global.shop.softwareLevelsApplied["softwarePlayerHealth"] * (250 / global.shop.softwareLevelEffectBonus)
             if removing then
                 modifier = 0 - modifier
             end
-            if playerIndex == nil then
-                for _, player in pairs(game.players) do
-                    local characters = player.get_associated_characters()
-                    for _, character in pairs(characters) do
-                        character.character_health_bonus = modifier
-                    end
-                end
-            else
-                game.get_player(playerIndex).character_health_bonus = modifier
-            end
+            global.force.character_health_bonus = global.force.character_health_bonus + modifier
         end
     }
 }
