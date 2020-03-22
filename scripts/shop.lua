@@ -41,12 +41,12 @@ Shop.OnLoad = function()
     Interfaces.RegisterInterface("Shop.CalculateSoftwarePrice", Shop.CalculateSoftwarePrice)
     Interfaces.RegisterInterface("Shop.CalculateSoftwareLevelsPrice", Shop.CalculateSoftwareLevelsPrice)
     EventScheduler.RegisterScheduledEventType("Shop.ItemDeliveryScheduledEvent", Shop.ItemDeliveryScheduledEvent)
+    Events.RegisterEvent(defines.events.on_player_used_capsule)
     Events.RegisterHandler(defines.events.on_player_used_capsule, "Shop.OnPlayerUsedCapsule", Shop.OnPlayerUsedCapsule)
     Interfaces.RegisterInterface("Shop.RecordSoftwareStartingLevels", Shop.RecordSoftwareStartingLevels)
     Interfaces.RegisterInterface("Shop.UpdateItems", Shop.UpdateItems)
     Commands.Register("prime_intergalactic_delivery_export_orders", {"api-description.prime_intergalactic_delivery_export_orders"}, Shop.ExportOrders, false)
-    Events.RegisterHandler(defines.events.on_player_respawned, "Shop.OnPlayerRespawned", Shop.OnPlayerRespawned)
-    Events.RegisterHandler(defines.events.on_player_created, "Shop.OnPlayerRespawned", Shop.OnPlayerRespawned)
+    Events.RegisterEvent("Shop.UpdatingItems")
 end
 
 Shop.OnStartup = function()
@@ -247,11 +247,6 @@ end
 
 Shop.ExportOrders = function(commandData)
     game.write_file("Prime_Intergalactic_Delivery_Orders.txt", Utils.TableContentsToJSON(global.shop.ordersMade), false, commandData.player_index)
-end
-
-Shop.OnPlayerRespawned = function(event)
-    local playerIndex = event.player_index
-    ShopRawItemsList["softwarePlayerHealth"].bonusEffect(false, playerIndex)
 end
 
 return Shop

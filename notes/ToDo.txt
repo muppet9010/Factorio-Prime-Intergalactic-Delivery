@@ -1,5 +1,4 @@
 Next:
-    - Force it to be placed somewhere as at present it can give up.
 
 Future:
 	- if you walk too far away from the market the window should close.
