@@ -208,9 +208,9 @@ Shop.OnPlayerUsedCapsule = function(event)
     end
 
     local itemDetails = global.shop.items[softwareName]
-    itemDetails.bonusEffect(true)
+    Interfaces.Call(itemDetails.bonusEffectName, true)
     global.shop.softwareLevelsApplied[softwareName] = global.shop.softwareLevelsApplied[softwareName] + 1
-    itemDetails.bonusEffect(false)
+    Interfaces.Call(itemDetails.bonusEffectName, false)
 
     local printName = global.shop.items[softwareName].printName
     game.print({"message.prime_intergalactic_delivery-software_applied", printName, global.shop.softwareLevelsApplied[softwareName]})
@@ -222,7 +222,7 @@ end
 Shop.ApplyCoreBonusEffects = function(removing)
     for _, itemDetails in pairs(global.shop.items) do
         if itemDetails.type == "software" and itemDetails.bonusEffectType == "core" then
-            itemDetails.bonusEffect(removing)
+            Interfaces.Call(itemDetails.bonusEffectName, removing)
         end
     end
 end

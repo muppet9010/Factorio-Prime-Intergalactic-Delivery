@@ -1,3 +1,5 @@
+local Interfaces = require("utility/interfaces")
+
 local ShopRawItemsList = {
     modularArmor = {
         type = "personal",
@@ -180,13 +182,16 @@ local ShopRawItemsList = {
         quantity = 1,
         priceCalculationInterfaceName = "Shop.CalculateSoftwarePrice",
         bonusEffectType = "core",
-        bonusEffect = function(removing)
-            local modifier = global.shop.softwareLevelsApplied["softwareMovementSpeed"] * (global.shop.softwareLevelEffectBonus / 100)
-            if removing then
-                modifier = 0 - modifier
+        bonusEffectName = Interfaces.RegisterInterface(
+            "bonusEffect-softwareMovementSpeed",
+            function(removing)
+                local modifier = global.shop.softwareLevelsApplied["softwareMovementSpeed"] * (global.shop.softwareLevelEffectBonus / 100)
+                if removing then
+                    modifier = 0 - modifier
+                end
+                global.force.character_running_speed_modifier = global.force.character_running_speed_modifier + modifier
             end
-            global.force.character_running_speed_modifier = global.force.character_running_speed_modifier + modifier
-        end
+        )
     },
     softwareMiningSpeed = {
         type = "software",
@@ -198,13 +203,16 @@ local ShopRawItemsList = {
         quantity = 1,
         priceCalculationInterfaceName = "Shop.CalculateSoftwarePrice",
         bonusEffectType = "core",
-        bonusEffect = function(removing)
-            local modifier = global.shop.softwareLevelsApplied["softwareMiningSpeed"] * (global.shop.softwareLevelEffectBonus / 100)
-            if removing then
-                modifier = 0 - modifier
+        bonusEffectName = Interfaces.RegisterInterface(
+            "bonusEffect-softwareMiningSpeed",
+            function(removing)
+                local modifier = global.shop.softwareLevelsApplied["softwareMiningSpeed"] * (global.shop.softwareLevelEffectBonus / 100)
+                if removing then
+                    modifier = 0 - modifier
+                end
+                global.force.manual_mining_speed_modifier = global.force.manual_mining_speed_modifier + modifier
             end
-            global.force.manual_mining_speed_modifier = global.force.manual_mining_speed_modifier + modifier
-        end
+        )
     },
     softwareCraftingSpeed = {
         type = "software",
@@ -216,13 +224,16 @@ local ShopRawItemsList = {
         quantity = 1,
         priceCalculationInterfaceName = "Shop.CalculateSoftwarePrice",
         bonusEffectType = "core",
-        bonusEffect = function(removing)
-            local modifier = global.shop.softwareLevelsApplied["softwareCraftingSpeed"] * (global.shop.softwareLevelEffectBonus / 100)
-            if removing then
-                modifier = 0 - modifier
+        bonusEffectName = Interfaces.RegisterInterface(
+            "bonusEffect-softwareCraftingSpeed",
+            function(removing)
+                local modifier = global.shop.softwareLevelsApplied["softwareCraftingSpeed"] * (global.shop.softwareLevelEffectBonus / 100)
+                if removing then
+                    modifier = 0 - modifier
+                end
+                global.force.manual_crafting_speed_modifier = global.force.manual_crafting_speed_modifier + modifier
             end
-            global.force.manual_crafting_speed_modifier = global.force.manual_crafting_speed_modifier + modifier
-        end
+        )
     },
     softwareInventorySize = {
         type = "software",
@@ -234,13 +245,16 @@ local ShopRawItemsList = {
         quantity = 1,
         priceCalculationInterfaceName = "Shop.CalculateSoftwarePrice",
         bonusEffectType = "core",
-        bonusEffect = function(removing)
-            local modifier = global.shop.softwareLevelsApplied["softwareInventorySize"] * global.shop.softwareLevelEffectBonus
-            if removing then
-                modifier = 0 - modifier
+        bonusEffectName = Interfaces.RegisterInterface(
+            "bonusEffect-softwareInventorySize",
+            function(removing)
+                local modifier = global.shop.softwareLevelsApplied["softwareInventorySize"] * global.shop.softwareLevelEffectBonus
+                if removing then
+                    modifier = 0 - modifier
+                end
+                global.force.character_inventory_slots_bonus = global.force.character_inventory_slots_bonus + modifier
             end
-            global.force.character_inventory_slots_bonus = global.force.character_inventory_slots_bonus + modifier
-        end
+        )
     },
     softwarePlayerHealth = {
         type = "software",
@@ -252,13 +266,16 @@ local ShopRawItemsList = {
         quantity = 1,
         priceCalculationInterfaceName = "Shop.CalculateSoftwarePrice",
         bonusEffectType = "core",
-        bonusEffect = function(removing)
-            local modifier = global.shop.softwareLevelsApplied["softwarePlayerHealth"] * (250 / global.shop.softwareLevelEffectBonus)
-            if removing then
-                modifier = 0 - modifier
+        bonusEffectName = Interfaces.RegisterInterface(
+            "bonusEffect-softwarePlayerHealth",
+            function(removing)
+                local modifier = global.shop.softwareLevelsApplied["softwarePlayerHealth"] * (250 / global.shop.softwareLevelEffectBonus)
+                if removing then
+                    modifier = 0 - modifier
+                end
+                global.force.character_health_bonus = global.force.character_health_bonus + modifier
             end
-            global.force.character_health_bonus = global.force.character_health_bonus + modifier
-        end
+        )
     }
 }
 
