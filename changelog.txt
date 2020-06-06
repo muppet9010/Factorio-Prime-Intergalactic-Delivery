@@ -5,6 +5,7 @@ Date: 2020-06-06
   Changes:
   Bugfixes:
     - Fixed crash when applying bonus upgrades.
+    - Health bonus percentage effect was inverted. Lower mod setting gave more health bonus.
   Info:
 ---------------------------------------------------------------------------------------------------
 Version: 18.0.5

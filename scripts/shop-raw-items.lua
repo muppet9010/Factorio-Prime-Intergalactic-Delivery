@@ -269,7 +269,7 @@ local ShopRawItemsList = {
         bonusEffectName = Interfaces.RegisterInterface(
             "bonusEffect-softwarePlayerHealth",
             function(removing)
-                local modifier = global.shop.softwareLevelsApplied["softwarePlayerHealth"] * (250 / global.shop.softwareLevelEffectBonus)
+                local modifier = global.shop.softwareLevelsApplied["softwarePlayerHealth"] * (2.5 * global.shop.softwareLevelEffectBonus)
                 if removing then
                     modifier = 0 - modifier
                 end
