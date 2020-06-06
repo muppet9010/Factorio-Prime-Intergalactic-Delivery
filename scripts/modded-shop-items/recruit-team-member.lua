@@ -58,13 +58,16 @@ RecruitTeamMember.OnUpdatedItems = function()
                 quantity = 1,
                 priceCalculationInterfaceName = "RecruitTeamMember.CalculateSoftwarePrice",
                 bonusEffectType = "mod",
-                bonusEffect = function(removing)
-                    local change = global.shop.softwareLevelsApplied["recruitTeamMember"]
-                    if removing then
-                        change = 0 - change
+                bonusEffectName = Interfaces.RegisterInterface(
+                    "bonusEffect-recruitTeamMember",
+                    function(removing)
+                        local change = global.shop.softwareLevelsApplied["recruitTeamMember"]
+                        if removing then
+                            change = 0 - change
+                        end
+                        remote.call("muppet_streamer", "increase_team_member_level", change)
                     end
-                    remote.call("muppet_streamer", "increase_team_member_level", change)
-                end
+                )
             }
         global.shop.items[itemName] = itemDetails
         Interfaces.Call("Shop.RecordSoftwareStartingLevels", itemName, itemDetails)

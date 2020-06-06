@@ -7,16 +7,6 @@ local EventScheduler = require("utility/event-scheduler")
 local Utils = require("utility/utils")
 local Commands = require("utility/commands")
 
---[[
-    global.shop.items[itemName] = {
-        type = STRING - types of mod setting that applies (personal/infrastructure/software), with "simple" meaning pass through as-is,
-        localisedName = STRING (goes in {} at run time),
-        localisedDescription = STRING (goes in {} at run time),
-        picture = STRING (sprite path),
-        price = NUMBER (for software is something special???),
-        item = STRING (the item to deliver)
-    }
-]]
 Shop.CreateGlobals = function()
     global.shop = global.shop or {}
     global.shop.items = global.shop.items or {}
@@ -218,9 +208,9 @@ Shop.OnPlayerUsedCapsule = function(event)
     end
 
     local itemDetails = global.shop.items[softwareName]
-    itemDetails.bonusEffect(true)
+    Interfaces.Call(itemDetails.bonusEffectName, true)
     global.shop.softwareLevelsApplied[softwareName] = global.shop.softwareLevelsApplied[softwareName] + 1
-    itemDetails.bonusEffect(false)
+    Interfaces.Call(itemDetails.bonusEffectName, false)
 
     local printName = global.shop.items[softwareName].printName
     game.print({"message.prime_intergalactic_delivery-software_applied", printName, global.shop.softwareLevelsApplied[softwareName]})
@@ -232,7 +222,7 @@ end
 Shop.ApplyCoreBonusEffects = function(removing)
     for _, itemDetails in pairs(global.shop.items) do
         if itemDetails.type == "software" and itemDetails.bonusEffectType == "core" then
-            itemDetails.bonusEffect(removing)
+            Interfaces.Call(itemDetails.bonusEffectName, removing)
         end
     end
 end
