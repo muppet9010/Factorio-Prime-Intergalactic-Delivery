@@ -7,16 +7,6 @@ local EventScheduler = require("utility/event-scheduler")
 local Utils = require("utility/utils")
 local Commands = require("utility/commands")
 
---[[
-    global.shop.items[itemName] = {
-        type = STRING - types of mod setting that applies (personal/infrastructure/software), with "simple" meaning pass through as-is,
-        localisedName = STRING (goes in {} at run time),
-        localisedDescription = STRING (goes in {} at run time),
-        picture = STRING (sprite path),
-        price = NUMBER (for software is something special???),
-        item = STRING (the item to deliver)
-    }
-]]
 Shop.CreateGlobals = function()
     global.shop = global.shop or {}
     global.shop.items = global.shop.items or {}
