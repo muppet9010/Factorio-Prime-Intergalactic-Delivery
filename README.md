@@ -1,4 +1,5 @@
 # Factorio-Prime-Intergalactic-Delivery
+
 A shopping point and GUI for buying various personal, infrastructure and mod items, plus some team upgrades with Factorio coins. Designed for streamers primarily.
 
 ![Mod's GUI](https://thumbs.gfycat.com/CheeryBothFreshwatereel-size_restricted.gif)
