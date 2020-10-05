@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 19.0.7
+Date: 2020-10-05
+  Features:
+  Changes:
+  Bugfixes:
+    - Protect against error from trying to set equal or below negative 0 value as force modifier.
+  Info:
+---------------------------------------------------------------------------------------------------
 Version: 18.0.6
 Date: 2020-06-06
   Features:
