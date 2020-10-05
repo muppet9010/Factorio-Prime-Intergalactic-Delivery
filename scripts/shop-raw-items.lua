@@ -189,7 +189,7 @@ local ShopRawItemsList = {
                 if removing then
                     modifier = 0 - modifier
                 end
-                global.force.character_running_speed_modifier = global.force.character_running_speed_modifier + modifier
+                global.force.character_running_speed_modifier = math.max(global.force.character_running_speed_modifier + modifier, 0)
             end
         )
     },
@@ -210,7 +210,7 @@ local ShopRawItemsList = {
                 if removing then
                     modifier = 0 - modifier
                 end
-                global.force.manual_mining_speed_modifier = global.force.manual_mining_speed_modifier + modifier
+                global.force.manual_mining_speed_modifier = math.max(global.force.manual_mining_speed_modifier + modifier, 0)
             end
         )
     },
@@ -231,7 +231,7 @@ local ShopRawItemsList = {
                 if removing then
                     modifier = 0 - modifier
                 end
-                global.force.manual_crafting_speed_modifier = global.force.manual_crafting_speed_modifier + modifier
+                global.force.manual_crafting_speed_modifier = math.max(global.force.manual_crafting_speed_modifier + modifier, 0)
             end
         )
     },
@@ -252,7 +252,7 @@ local ShopRawItemsList = {
                 if removing then
                     modifier = 0 - modifier
                 end
-                global.force.character_inventory_slots_bonus = global.force.character_inventory_slots_bonus + modifier
+                global.force.character_inventory_slots_bonus = math.max(global.force.character_inventory_slots_bonus + modifier, 0)
             end
         )
     },
@@ -273,7 +273,7 @@ local ShopRawItemsList = {
                 if removing then
                     modifier = 0 - modifier
                 end
-                global.force.character_health_bonus = global.force.character_health_bonus + modifier
+                global.force.character_health_bonus = math.max(global.force.character_health_bonus + modifier, 0)
             end
         )
     }
