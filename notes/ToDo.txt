@@ -1,10 +1,19 @@
+Bugs:
+	- Crashes if no surface 1 - https://mods.factorio.com/mod/prime_intergalactic_delivery/discussion/61d2e55b9715bcc3e3a881fd
+    - Errors when Muppet Streamer mod is active. Something about the Recruit Team Member tech.
+    - Update Readme so its clear this is hard coded for vanilla Factorio.
+    - Add a note to readme and mod setting description that a disabled ability to craft an item disabled/trims the technology for that item.
+    - When a technology is disabled we should also lock any recipes for the items we are preventing. Don't need to remove them from any machines as I don;t do this in other mods.
+
 Next:
-	Player whitelist needs a space after comma apparently for each entry.
+	- Update Sumneko and Utility.
+	- Player whitelist needs a space after comma apparently for each entry.
+	- Have item costs generated from in-game recipes (select cheapest recipe). So they are always up to date and would support modded items and their settings. Recognised expensive mode if it was enabled.
+	- Should we disable technologies for items that are only allowed to be purchased in the shop? Should probably do as a update date stage (second) that we check if no other tech has it as a pre-req and if so disbale it, otherwise just remove the recipe. Will need to check down chain lists for this. https://mods.factorio.com/mod/prime_intergalactic_delivery/discussion/638d1780e4a276754011ff9a
 
 Future:
 	- if you walk too far away from the market the window should close.
-	- openable gui to see upgrades got clealy. while many effects will be shown in the bonus tab, they will be mixed in with other researches. being at the market could see next skill levels and therefor know current, but not as smooth. shortcut item and shortcut key
+	- openable gui to see upgrades got clearly. while many effects will be shown in the bonus tab, they will be mixed in with other researches. being at the market could see next skill levels and therefore know current, but not as smooth. shortcut item and shortcut key
 	- audio when items are going to be delivered - needs a remote call to the item-delivery-pod maybe or can just go off when this mod sends the delivery command?
-	- Have item costs generated from in-game recipes (select cheapest recipe). So they are always up to date and would support modded items and their settings. Support expensive mode?
 	- Vehicles and rail item option groups
 	- add other weapons option
