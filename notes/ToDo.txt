@@ -1,4 +1,5 @@
 Next:
+	Player whitelist needs a space after comma apparently for each entry.
 
 Future:
 	- if you walk too far away from the market the window should close.
